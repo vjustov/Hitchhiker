@@ -1,0 +1,12 @@
+source 'http://www.rubygems.org'
+gem 'sinatra'
+gem 'mongoid'
+
+group :development do
+  gem 'sinatra-contrib'
+  gem 'rspec'
+  gem 'debugger'
+  gem 'cucumber'
+  gem 'cucumber-sinatra'
+end
+
