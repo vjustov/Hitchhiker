@@ -1,4 +1,4 @@
-require 'mongoid'
+require_relative '../config.rb'
 
 class User
   include Mongoid::Document
