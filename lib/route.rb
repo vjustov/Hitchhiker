@@ -3,26 +3,39 @@ require_relative '../config.rb'
 class Route
   include Mongoid::Document
   
+  field :city, type: String
+  field :country, type: String
+  
+  field :routeLink, type: String
+  field :startingPoint, type: String
+  field :endPoint, type: String  
+  field :routePoints, type:Array
+  
+  belongs_to :vehicle
+  field :passengers, type:Array
   
   embeds_many :stops
-  embeds_in :trip
-end
-
-class Trip
-  include Mongoid::Document
-  
-  field :isRoundTrip, type: Boolean
-  
-  
   embeds_in :user
   embeds_one :schedule
-  embeds_many :routes
+end
+
+class Schedule
+  include Mongoid::Document
+  
+  field :departure, type:Time, presence: true
+  field :arrival, type:Time 
+  
+  field :date, type: String, presence: true
+  field :frecuency, type:Integer
+  
+  embeds_in :route
 end
 
 class Stop
   include Mongoid::Document
   
-  field :duration, type: Integer  
+  field :duration, type: Integer
+  embeds_in :route  
   embeds_one :location
    
 end
