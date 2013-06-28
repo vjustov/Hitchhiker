@@ -1,0 +1,15 @@
+
+[java]
+.bundle
+db/*.sqlite3*
+log/*.log
+*.log
+tmp/**/*
+tmp/*
+doc/api
+doc/app
+*.swp
+*~ 			#vim generated files
+.DS_Store
+*.lock 		#Gemfile.lock
+[/java]
