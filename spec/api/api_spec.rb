@@ -51,13 +51,21 @@ describe 'The Hitchhikers API' do
     it "should be able to edit users" do
       
       old_user = User.all.entries[1]
-
-      put '/users/1', {username: "New user 1", hitchhiker: 'false'}
+      
+      put "users/#{old_user['_id']}", {username: "New user 1", hitchhiker: 'false'}
       last_response.status.should eql 204
-      User.all.entries[1]['username'].should_not eql old_user['username']
+      User.find_by(_id: old_user['_id'])['username'].should_not eql old_user['username']
     end
 
-    it "should be able to delete users"
+    it "should be able to delete users" do
+
+      users_count = User.all.entries.size
+
+      delete "/users/#{User.all.entries[1]['_id']}"
+      last_response.status.should eql 200
+      
+      User.all.entries.size.should eql users_count -1
+    end
 
     it "should be able to get all users within reach"
 
