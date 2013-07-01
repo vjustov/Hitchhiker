@@ -14,6 +14,7 @@ describe 'The Hitchhikers API' do
         json = {}
         json['username'] = "User #{u}"
         json['hitchhiker'] = true
+        json['position'] = {latitude: 50.729400634765625, longitude: 15.723899841308594}
         user = User.new json
         user.save
       end
@@ -66,13 +67,28 @@ describe 'The Hitchhikers API' do
       
       User.all.entries.size.should eql users_count -1
     end
-
-    it "should be able to get all users within reach"
-
-
   end
 
   context 'regarding users location' do
+    it "should be able to get all users within reach" do
+      user = User.new username: "Searching User", hitchhiker: false, position: {latitude: 50.729400634765625, longitude: 15.723899841308594}
+      # debugger
 
+      get "/users/lat=#{user.position[:longitude]}&long=#{user.position[:latitude]}"
+      # debugger
+      last_response.status.should eql 200
+      # last_response.body.should
+    end
+    it "should be able to get all drivers within reach"
+    it "should be able to get all hitchhikers within reach"
+  end
+
+  context 'regarding routes' do
+    it 'add a route'
+    it 'should see routes'
+    it 'should edit a route'
+    it' should delete a route'
+    it 'should let passengers check into a route'
+    it 'should deny a passenger entry if car is full'
   end
 end

@@ -7,6 +7,7 @@ class User
   # field :user_id, type: String
   field :username, type: String
   field :hitchhiker, type: Boolean
+  field :position, type: Hash
 
   # index :user_id
   # index({user_id: 1}, {unique: true})
