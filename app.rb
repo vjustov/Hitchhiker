@@ -11,6 +11,7 @@ before do
   content_type 'application/json'
 end
 
+
 get '/' do
   'hello world'
 end
@@ -29,6 +30,7 @@ post '/users' do
 end
 
 get '/users/drivers' do
+  debugger
   User.where(hitchhiker: 'false').to_json
 end
 
@@ -70,4 +72,6 @@ end
 
 get '/users/lat=:lat&long=:long' do
   debugger
+  users = User.where position: { '$near' => [ params[:long], params[:lat] ], '$maxdistance' => 5 }
+  'hi'
 end

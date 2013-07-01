@@ -72,9 +72,11 @@ describe 'The Hitchhikers API' do
   context 'regarding users location' do
     it "should be able to get all users within reach" do
       user = User.new username: "Searching User", hitchhiker: false, position: {latitude: 50.729400634765625, longitude: 15.723899841308594}
-      # debugger
+       debugger
 
       get "/users/lat=#{user.position[:longitude]}&long=#{user.position[:latitude]}"
+      #get "/users/lat"
+      
       # debugger
       last_response.status.should eql 200
       # last_response.body.should

@@ -11,7 +11,7 @@ class Route
   field :endPoint, type: String  
   field :routePoints, type:Array
   
-  belongs_to :vehicle
+  #belongs_to :vehicle
   field :passengers, type:Array
   
   embeds_many :stops
