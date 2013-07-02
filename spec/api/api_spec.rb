@@ -76,13 +76,8 @@ describe 'The Hitchhikers API' do
       user = User.new username: "Searching User", hitchhiker: false, position: {latitude: 50.729400634765625, longitude: 15.723899841308594}
        #debugger
 
-<<<<<<< HEAD
       get "/users/long=#{user.position[:longitude]}&lat=#{user.position[:latitude]}"
-=======
-      get "/users/lat=#{user.position[:longitude]}&long=#{user.position[:latitude]}"
-      #get "/users/lat"
-      
->>>>>>> c537a2d92dd574057207332a1ff5c5d966fe0082
+
       # debugger
       last_response.status.should eql 200
 
