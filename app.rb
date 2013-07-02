@@ -159,3 +159,50 @@ put '/routes/:id/checkin' do
   [204]
 end
 
+post '/routes/:id/stops' do
+    route = Route.find_by(_id: params[:id])
+    stop = Stop.new
+  halt 404 if route.nil?
+
+  halt 400 if params.to_json.nil?
+  
+   %w(duration position).each do |key|
+    unless params[key].nil? || params[key] == route[key]
+      stop[key] = params[key]
+    end
+  end
+  route.stops << stop
+
+  halt 500 unless route.save
+
+  [201, route.stops.to_json]
+end
+
+put '/routes/:id/stops/:id_stop' do
+  route = Route.find_by(_id: params[:id])
+  stop = route.stops.find_by(_id: params[:id_stop])
+  
+  halt 404 if route.nil? || stop.nil?  
+  halt 400 if params.to_json.nil?
+    
+  %w(duration position).each do |key|
+    unless params[key].nil? || params[key] == route[key]
+      stop[key] = params[key]
+    end
+  end
+  halt 500 unless stop.save
+  
+  [204]
+end
+
+
+delete '/routes/:id/stops/:id_stop' do
+  route = Route.find_by(_id: params[:id])
+  stop = route.stops.find_by(_id: params[:id_stop])
+  
+  halt 404 if route.nil? || stop.nil?  
+  halt 400 if params.to_json.nil?
+  
+  halt 500 unless stop.destroy
+  
+end

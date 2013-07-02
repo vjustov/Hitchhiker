@@ -39,8 +39,9 @@ class Stop
   include Mongoid::Document
   
   field :duration, type: Integer
+  field :position, type: Hash
   embedded_in :route  
-  embeds_one :location
+  #embeds_one :location
    
 end
 
