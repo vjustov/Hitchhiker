@@ -23,13 +23,16 @@ end
 class Schedule
   include Mongoid::Document
   
-  field :departure, type:Time
-  field :arrival, type:Time 
+  field :departureHour, type:Integer
+  field :departureMinute, type:Integer
+  field :arrivalHour, type:Integer 
+  field :arrivalMinute, type:Integer
   
   field :date, type: String
   field :frecuency, type:Integer
   
-  validates_presence_of :departure
+  validates_presence_of :departureHour
+  validates_presence_of :departureMinute
   validates_presence_of :date
   
   embedded_in :route
@@ -39,8 +42,9 @@ class Stop
   include Mongoid::Document
   
   field :duration, type: Integer
+  field :position, type: Hash
   embedded_in :route  
-  embeds_one :location
+  #embeds_one :location
    
 end
 

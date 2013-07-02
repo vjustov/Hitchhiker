@@ -93,6 +93,7 @@ describe 'The Hitchhikers API' do
      before :all do
       Route.destroy_all
       Vehicle.destroy_all
+      Schedule.destroy_all
       
       @user = User.first()
       @vehicle = Vehicle.new  brand: "Honda", model: "Civic", year:2008, sits:5, hasTrunk: false 
@@ -104,6 +105,7 @@ describe 'The Hitchhikers API' do
         json['routeLink'] = "http://#{u}.com"
         json['vehicle'] = @vehicle
         json['passengers'] = []
+        json['stops'] = []
         json['avaliableSits'] = u
         json['startingPoint'] = {latitude: 50.729400634765625 - u, longitude: 15.723899841308594 +  u}
         json['endPoint'] = {latitude: 50.729400634765625 - u, longitude: 15.723899841308594 + u}
@@ -149,6 +151,7 @@ describe 'The Hitchhikers API' do
       
       
     end
+   
     
     it' should delete a route' do
       route_count = Route.all.entries.size
@@ -161,9 +164,8 @@ describe 'The Hitchhikers API' do
     
     it  'should let to set the route schedule' do
        route = @user.routes.first()
-      post "/routes/#{route.id}/schedule", {departure: Time.now, 
-                                   arrival: Time.now + 1, 
-                                   date: Date.today
+      post "/routes/#{route.id}/schedule", {departureHour: 8, departureMinute: 30, arrivalHour: 9, arrivalMinute: 30 ,
+                                            date: Date.today
                              }
       last_response.status.should eql 201
       
@@ -172,16 +174,19 @@ describe 'The Hitchhikers API' do
       
     end
     
+    it 'should not allow to set schedule within the same route timeframe' do
+      route = @user.routes.skip(1).first()
+      post "/routes/#{route.id}/schedule", {departureHour: 8, departureMinute: 50, arrivalHour: 9, arrivalMinute: 30 ,
+                                            date: Date.today}
+      last_response.status.should eql 403
+    end
+    
     it  'should let to update a route schedule'  do
       route = @user.routes.first()
-      post "/routes/#{route.id}/schedule", {departure: Time.now, 
-                                   arrival: Time.now + 1, 
+      put "/routes/#{route.id}/schedule", {departureHour: 8, departureMinute: 35, arrivalHour: 9, arrivalMinute: 35 , 
                                    date: Date.today-1
                              }
-      last_response.status.should eql 201
-      
-      json_response = JSON.parse last_response.body
-      json_response['schedule']['date'].should eql '2013-07-01'
+      last_response.status.should eql 204
     end
       
     
@@ -196,10 +201,34 @@ describe 'The Hitchhikers API' do
       
     end
       
-    it 'should let to add a stop in a route'
-    it 'should let to update a stop in a route'
-    it 'should let to delete a stop in a route' 
+    it 'should let to add a stop in a route' do 
+      route = @user.routes.first()
+      post "/routes/#{route.id}/stops", {duration:5, position: {long: 50.729600634765625, lat: 15.723999841308594 } }
       
+      last_response.status.should eql 201
+      json_response = JSON.parse last_response.body
+      json_response.first()['duration'].should eql 5  
+      
+    end
+    
+    it 'should let to update a stop in a route' do 
+      route = Route.first()
+      
+      put "/routes/#{route.id}/stops/#{route.stops.first().id}", {duration:3, position: {long: 50.739600634765625, lat: 15.733999841308594 } }
+      
+      last_response.status.should eql 204
+      Route.find_by(_id: route.id).stops.first().duration.should_not eql route.stops.first().duration
+            
+    end
+    
+    it 'should let to delete a stop in a route' do
+     route = Route.first()
+
+      delete "/routes/#{route.id}/stops/#{route.stops.first().id}"
+      last_response.status.should eql 200
+      
+      Route.where(:id => route.id).first().stops.size.should eql route.stops.size-1 
+    end
     
     it 'should let passengers check into a route' do
       route = @user.routes.where(:avaliableSits => 1).first()
@@ -214,6 +243,13 @@ describe 'The Hitchhikers API' do
       last_response.status.should eql 403
       Route.where(:id => route.id).first().passengers.size.should eql 1
     end
+    
+    it 'should not allowed a passenger to checkin two routes in the same timeframe' do
+
+    end
+    
+    it 'a user need to see what routes it is checkin on'
+    
     
   end
 end
