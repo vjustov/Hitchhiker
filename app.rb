@@ -128,14 +128,63 @@ post '/routes/:id/schedule' do
   halt 400 if request.params.nil?
   route = Route.where('_id' => params[:id]).first
   halt 404 if route.nil?
+   
+  route_schedule = Schedule.new JSON.parse(request.params.to_json)
+    
+  user_routes = route.user.routes
   
-  #debugger
-  
-  route.schedule = Schedule.new JSON.parse(request.params.to_json)
-  
+  user_routes.each do |user_route|
+    
+    unless (user_route.schedule.nil?) then 
+      schedule = Route.where(
+                            { "$or" =>
+                                [ 
+                                   { "$and" => 
+                                      [
+                                        { "schedule.arrivalHour" =>  {"$lte" =>  route_schedule.arrivalHour } }, 
+                                        { "schedule.arrivalMinute" =>  {"$lte" =>  route_schedule.arrivalMinute } }
+                                      ]
+                                   },
+                                   {
+                                      "$and" => 
+                                      [
+                                        { "schedule.departureHour" =>  {"$gte" =>  route_schedule.departureHour } }, 
+                                        { "schedule.departureMinute" =>  {"$gte" =>  route_schedule.departureMinute } }
+                                      ]
+                                   }
+                                ],
+                             "user_id" => user_route.user_id }
+                  ) 
+                  
+      
+      halt 403 if !schedule.nil? || schedule.size > 0
+    end  
+  end
+    
+  route.schedule = route_schedule
+    
   halt 500 unless route.save
 
   [201, route.to_json]
+end
+
+put '/routes/:id/schedule' do
+  route = Route.find_by(_id: params[:id])
+  halt 404 if route.nil?
+
+  halt 400 if params.to_json.nil?
+  schedule = Schedule.new
+  %w(departureHour departureMinute arrivalHour arrivalMinute date frecuency).each do |key|
+    unless params[key].nil? || params[key] == route[key]
+      schedule[key] = params[key]
+    end
+  end
+  
+  route.schedule = schedule
+  
+  halt 500 unless route.save
+
+  [204]
 end
 
 delete '/routes/:id/schedule' do

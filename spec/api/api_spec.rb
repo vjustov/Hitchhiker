@@ -92,6 +92,7 @@ describe 'The Hitchhikers API' do
      before :all do
       Route.destroy_all
       Vehicle.destroy_all
+      Schedule.destroy_all
       
       @user = User.first()
       @vehicle = Vehicle.new  brand: "Honda", model: "Civic", year:2008, sits:5, hasTrunk: false 
@@ -149,8 +150,7 @@ describe 'The Hitchhikers API' do
       
       
     end
-    
-    it 'should not allow to create two routes within the same route timeframe'
+   
     
     it' should delete a route' do
       route_count = Route.all.entries.size
@@ -163,9 +163,8 @@ describe 'The Hitchhikers API' do
     
     it  'should let to set the route schedule' do
        route = @user.routes.first()
-      post "/routes/#{route.id}/schedule", {departure: Time.now, 
-                                   arrival: Time.now + 1, 
-                                   date: Date.today
+      post "/routes/#{route.id}/schedule", {departureHour: 8, departureMinute: 30, arrivalHour: 9, arrivalMinute: 30 ,
+                                            date: Date.today
                              }
       last_response.status.should eql 201
       
@@ -174,16 +173,19 @@ describe 'The Hitchhikers API' do
       
     end
     
+    it 'should not allow to set schedule within the same route timeframe' do
+      route = @user.routes.skip(1).first()
+      post "/routes/#{route.id}/schedule", {departureHour: 8, departureMinute: 50, arrivalHour: 9, arrivalMinute: 30 ,
+                                            date: Date.today}
+      last_response.status.should eql 403
+    end
+    
     it  'should let to update a route schedule'  do
       route = @user.routes.first()
-      post "/routes/#{route.id}/schedule", {departure: Time.now, 
-                                   arrival: Time.now + 1, 
+      put "/routes/#{route.id}/schedule", {departureHour: 8, departureMinute: 35, arrivalHour: 9, arrivalMinute: 35 , 
                                    date: Date.today-1
                              }
-      last_response.status.should eql 201
-      
-      json_response = JSON.parse last_response.body
-      json_response['schedule']['date'].should eql '2013-07-01'
+      last_response.status.should eql 204
     end
       
     
@@ -241,7 +243,11 @@ describe 'The Hitchhikers API' do
       Route.where(:id => route.id).first().passengers.size.should eql 1
     end
     
-    it 'should not allowed a passenger to checkin two routes in the same timeframe'
+    it 'should not allowed a passenger to checkin two routes in the same timeframe' do
+
+    end
+    
+    it 'a user need to see what routes it is checkin on'
     
     
   end
