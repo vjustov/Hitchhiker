@@ -74,10 +74,12 @@ describe 'The Hitchhikers API' do
       user = User.new username: "Searching User", hitchhiker: false, position: {latitude: 50.729400634765625, longitude: 15.723899841308594}
       # debugger
 
-      get "/users/lat=#{user.position[:longitude]}&long=#{user.position[:latitude]}"
+      get "/users/long=#{user.position[:longitude]}&lat=#{user.position[:latitude]}"
       # debugger
       last_response.status.should eql 200
-      # last_response.body.should
+
+      json_response = JSON.parse last_response.body
+      json_response.size.should eql 4
     end
     it "should be able to get all drivers within reach"
     it "should be able to get all hitchhikers within reach"

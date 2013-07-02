@@ -60,14 +60,11 @@ delete '/users/:id' do
   halt 500 unless user.destroy
 end
 
-# get '/users/lat=:lat&long=:long' do
-#   debugger
-#   users = User.where loc: { '$near' => [ params[:lat], params[:long] ], '$maxdistance' => 5 }
-#   users
-#   debugger
+get '/users/long=:long&lat=:lat' do
+  # debugger
+  users = User.where position: { '$near' => [ params[:lat], params[:long] ], '$maxdistance' => 5 }
+  users.to_json
+  
 
-# end
-
-get '/users/lat=:lat&long=:long' do
-  debugger
 end
+

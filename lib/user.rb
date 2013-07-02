@@ -8,7 +8,7 @@ class User
   field :username, type: String
   field :hitchhiker, type: Boolean
   field :position, type: Hash
-
+  index { position: "2d" }
   # index :user_id
   # index({user_id: 1}, {unique: true})
   # validates_uniqueness_of :user_id
