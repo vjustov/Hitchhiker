@@ -7,35 +7,39 @@ class Route
   field :country, type: String
   
   field :routeLink, type: String
-  field :startingPoint, type: String
-  field :endPoint, type: String  
+  field :startingPoint, type: Hash
+  field :endPoint, type: Hash  
   field :routePoints, type:Array
+  field :avaliableSits, type:Integer
   
-  #belongs_to :vehicle
+  belongs_to :vehicle
   field :passengers, type:Array
   
   embeds_many :stops
-  embeds_in :user
+  belongs_to :user
   embeds_one :schedule
 end
 
 class Schedule
   include Mongoid::Document
   
-  field :departure, type:Time, presence: true
+  field :departure, type:Time
   field :arrival, type:Time 
   
-  field :date, type: String, presence: true
+  field :date, type: String
   field :frecuency, type:Integer
   
-  embeds_in :route
+  validates_presence_of :departure
+  validates_presence_of :date
+  
+  embedded_in :route
 end
 
 class Stop
   include Mongoid::Document
   
   field :duration, type: Integer
-  embeds_in :route  
+  embedded_in :route  
   embeds_one :location
    
 end
@@ -46,6 +50,6 @@ class Location
    field :lng, type: Float
    field :lat, type: Float
   
-  embeds_in :stop
+  embedded_in :stop
   
 end

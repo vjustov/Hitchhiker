@@ -3,7 +3,7 @@ require 'mongoid'
 require 'sinatra/reloader' if :development
 require 'debugger' if :development
 
-['user'].each do |file|
+['vehicle','user', 'route'].each do |file|
   require File.join(File.dirname(__FILE__), 'lib', "#{file}.rb")
 end
 
@@ -30,7 +30,7 @@ post '/users' do
 end
 
 get '/users/drivers' do
-  debugger
+  #debugger
   User.where(hitchhiker: 'false').to_json
 end
 
@@ -64,17 +64,90 @@ end
 
 get '/users/long=:long&lat=:lat' do
   # debugger
-  users = User.where position: { '$near' => [ params[:lat], params[:long] ], '$maxdistance' => 5 }
-  users.to_json
-  
-
-end
-
-<<<<<<< HEAD
-=======
-get '/users/lat=:lat&long=:long' do
-  debugger
   users = User.where position: { '$near' => [ params[:long], params[:lat] ], '$maxdistance' => 5 }
-  'hi'
+  users.to_json
 end
->>>>>>> c537a2d92dd574057207332a1ff5c5d966fe0082
+
+get '/users/:username/routes' do
+  halt 400 if params[:username].nil?
+  user = User.where(username: params[:username]).first().routes.to_json
+end
+
+
+
+post '/users/:username/routes' do
+  halt 400 if request.params.nil?
+  user = User.where('username' => params[:username]).first
+  halt 404 if user.nil?
+  
+  #debugger
+  
+  route = Route.new JSON.parse(request.params.to_json)
+  user.routes << route
+  
+  halt 500 unless user.save
+
+  [201, user.to_json]
+end
+
+put '/routes/:id' do
+  route = Route.find_by(_id: params[:id])
+  halt 404 if route.nil?
+
+  halt 400 if params.to_json.nil?
+
+  %w(city country routeLink avaliableSits startingPoint endPoint).each do |key|
+    unless params[key].nil? || params[key] == route[key]
+      route[key] = params[key]
+    end
+  end
+
+  halt 500 unless route.save
+
+  [204]
+end
+
+
+delete '/routes/:id' do
+  route = Route.find_by(_id: params[:id])
+  halt 404 if route.nil?
+
+  halt 500 unless route.destroy
+end
+
+
+post '/routes/:id/schedule' do
+  halt 400 if request.params.nil?
+  route = Route.where('_id' => params[:id]).first
+  halt 404 if route.nil?
+  
+  #debugger
+  
+  route.schedule = Schedule.new JSON.parse(request.params.to_json)
+  
+  halt 500 unless route.save
+
+  [201, route.to_json]
+end
+
+delete '/routes/:id/schedule' do
+  route = Route.find_by(_id: params[:id])
+  halt 404 if route.nil?
+    route.schedule = nil
+  halt 500 unless route.save
+end
+
+put '/routes/:id/checkin' do
+   route = Route.find_by(_id: params[:id])
+  halt 404 if route.nil?
+
+  halt 400 if params.to_json.nil?
+  
+  halt 403 if route.passengers.size >= route.avaliableSits
+  route.passengers << params[:user_id]
+
+  halt 500 unless route.save
+
+  [204]
+end
+
