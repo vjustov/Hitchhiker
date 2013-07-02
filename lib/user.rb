@@ -8,7 +8,8 @@ class User
   field :username, type: String
   field :hitchhiker, type: Boolean
 
-  #has_and_belongs_to_many :vehicles, inverse_of: nil 
+  #has_many :vehicles 
+  has_many :routes
 
   field :position, type: Hash
 
