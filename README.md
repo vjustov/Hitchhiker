@@ -12,7 +12,7 @@ We are not ready yet. but we will definitively let you know when we are.
 Contributor List
 ==========
 
-Dariel Javier
-Libranner Santos
-Victor Justo
+- Dariel Javier
+- Libranner Santos
+- Victor Justo
 
