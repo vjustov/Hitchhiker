@@ -2,6 +2,7 @@ require 'sinatra'
 require 'mongoid'
 require 'sinatra/reloader' if :development
 require 'debugger' if :development
+require 'rest_client'
 
 ['user'].each do |file|
   require File.join(File.dirname(__FILE__), 'lib', "#{file}.rb")
@@ -30,7 +31,7 @@ post '/users' do
 end
 
 get '/users/drivers' do
-  debugger
+  #debugger
   User.where(hitchhiker: 'false').to_json
 end
 
@@ -70,11 +71,40 @@ get '/users/long=:long&lat=:lat' do
 
 end
 
-<<<<<<< HEAD
-=======
 get '/users/lat=:lat&long=:long' do
-  debugger
+  #debugger
   users = User.where position: { '$near' => [ params[:long], params[:lat] ], '$maxdistance' => 5 }
   'hi'
 end
->>>>>>> c537a2d92dd574057207332a1ff5c5d966fe0082
+
+
+#LET'S GET SOME ROUTES
+get '/osrm/routes' do
+  halt 400 if params.nil?
+  %w(from to).each do |key|
+    halt 400, "Param [#{key}] is mandatory." if params[key].nil? || params[key].empty?
+  end
+  data = JSON.parse(RestClient.get("http://router.project-osrm.org/viaroute?loc=#{params[:from]}&loc=#{params[:to]}"))
+  halt 404, "Route not found" if data.nil? || data.empty?
+  halt 400, "There's a problem with your request: #{data['status_message']}." if data['status'] != 0
+  data.to_json
+end
+
+get '/osrm/routes-multiple' do
+    halt 400 if params.nil? || params[:locations].nil? || params[:locations].size == 0
+    locations = params[:locations]
+
+    q_string = []
+    locations.values.each {|v| q_string << "loc=#{v}"}
+
+    data = JSON.parse(RestClient.get("http://router.project-osrm.org/viaroute?#{q_string.join('&')}"))
+    halt 404, "Route not found" if data.nil? || data.empty?
+    halt 400, "There's a problem with your request: #{data['status_message']}." if data['status'] != 0
+    data.to_json
+end
+
+
+
+
+
+
