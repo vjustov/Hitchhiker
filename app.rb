@@ -32,11 +32,11 @@ end
 
 get '/users/drivers' do
   #debugger
-  User.where(hitchhiker: 'false').to_json
+  User.drivers.to_json
 end
 
 get '/users/hitchhikers' do
-  User.where(hitchhiker: 'true').to_json
+  User.hitchhikers.to_json
 end
 
 put '/users/:id' do
@@ -65,20 +65,20 @@ end
 
 get '/users/long=:long&lat=:lat' do
   # debugger
-  users = User.where position: { '$near' => [ params[:long], params[:lat] ], '$maxdistance' => 5 }
+  users = User.near(params[:long], params[:lat])
   users.to_json
 end
 
 get '/users/:username/routes' do
   halt 400 if params[:username].nil?
-  user = User.where(username: params[:username]).first().routes.to_json
+  user = User.by_username(params[:username]).first().routes.to_json
 end
 
 
 
 post '/users/:username/routes' do
   halt 400 if request.params.nil?
-  user = User.where('username' => params[:username]).first
+  user = User.by_username(params[:username]).first
   halt 404 if user.nil?
   
   #debugger
@@ -98,7 +98,7 @@ put '/routes/:id' do
 
   halt 400 if params.to_json.nil?
 
-  %w(city country routeLink avaliableSits startingPoint endPoint).each do |key|
+  %w(city country route_link avaliable_sits starting_point end_point).each do |key|
     unless params[key].nil? || params[key] == route[key]
       route[key] = params[key]
     end
@@ -135,15 +135,15 @@ post '/routes/:id/schedule' do
                                 [ 
                                    { "$and" => 
                                       [
-                                        { "schedule.arrivalHour" =>  {"$lte" =>  route_schedule.arrivalHour } }, 
-                                        { "schedule.arrivalMinute" =>  {"$lte" =>  route_schedule.arrivalMinute } }
+                                        { "schedule.arrival_hour" =>  {"$lte" =>  route_schedule.arrival_hour } }, 
+                                        { "schedule.arrival_minute" =>  {"$lte" =>  route_schedule.arrival_minute } }
                                       ]
                                    },
                                    {
                                       "$and" => 
                                       [
-                                        { "schedule.departureHour" =>  {"$gte" =>  route_schedule.departureHour } }, 
-                                        { "schedule.departureMinute" =>  {"$gte" =>  route_schedule.departureMinute } }
+                                        { "schedule.departure_hour" =>  {"$gte" =>  route_schedule.departure_hour } }, 
+                                        { "schedule.departure_minute" =>  {"$gte" =>  route_schedule.departure_minute } }
                                       ]
                                    }
                                 ],
@@ -168,7 +168,7 @@ put '/routes/:id/schedule' do
 
   halt 400 if params.to_json.nil?
   schedule = Schedule.new
-  %w(departureHour departureMinute arrivalHour arrivalMinute date frecuency).each do |key|
+  %w(departure_hour departure_minute arrival_hour arrival_minute date frecuency).each do |key|
     unless params[key].nil? || params[key] == route[key]
       schedule[key] = params[key]
     end
@@ -194,7 +194,7 @@ put '/routes/:id/checkin' do
 
   halt 400 if params.to_json.nil?
   
-  halt 403 if route.passengers.size >= route.avaliableSits
+  halt 403 if route.passengers.size >= route.avaliable_sits
   route.passengers << params[:user_id]
 
   halt 500 unless route.save
