@@ -77,7 +77,9 @@ describe 'The Hitchhikers API' do
        #debugger
 
       get "/users/long=#{user.position[:longitude]}&lat=#{user.position[:latitude]}"
-
+      get "/users/lat=#{user.position[:longitude]}&long=#{user.position[:latitude]}"
+      #get "/users/lat"
+      
       # debugger
       last_response.status.should eql 200
 
@@ -170,7 +172,7 @@ describe 'The Hitchhikers API' do
       last_response.status.should eql 201
       
       json_response = JSON.parse last_response.body
-      json_response['schedule']['date'].should eql '2013-07-02'
+      json_response['schedule']['date'].to_date.should eql Date.today.to_date
       
     end
     

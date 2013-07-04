@@ -8,7 +8,9 @@ class User
   field :hitchhiker, type: Boolean
 
   field :position, type: Hash
+
   index ({position:"2d"})
+
 
   #has_and_belongs_to_many :vehicles, inverse_of: nil 
   #has_many :vehicles 
