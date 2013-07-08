@@ -6,11 +6,11 @@ class Route
   field :city, type: String
   field :country, type: String
   
-  field :routeLink, type: String
-  field :startingPoint, type: Hash
-  field :endPoint, type: Hash  
-  field :routePoints, type:Array
-  field :avaliableSits, type:Integer
+  field :route_link, type: String
+  field :starting_point, type: Hash
+  field :end_point, type: Hash  
+  field :route_points, type:Array
+  field :available_sits, type:Integer
   
   belongs_to :vehicle
   field :passengers, type:Array
@@ -23,16 +23,13 @@ end
 class Schedule
   include Mongoid::Document
   
-  field :departureHour, type:Integer
-  field :departureMinute, type:Integer
-  field :arrivalHour, type:Integer 
-  field :arrivalMinute, type:Integer
+  field :departure, type:DateTime
+  field :arrival, type:DateTime 
   
   field :date, type: String
   field :frecuency, type:Integer
   
-  validates_presence_of :departureHour
-  validates_presence_of :departureMinute
+  validates_presence_of :departure
   validates_presence_of :date
   
   embedded_in :route

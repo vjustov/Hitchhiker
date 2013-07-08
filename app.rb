@@ -98,7 +98,7 @@ put '/routes/:id' do
 
   halt 400 if params.to_json.nil?
 
-  %w(city country routeLink avaliableSits startingPoint endPoint).each do |key|
+  %w(city country route_link available_sits starting_point end_pint).each do |key|
     unless params[key].nil? || params[key] == route[key]
       route[key] = params[key]
     end
@@ -135,15 +135,15 @@ post '/routes/:id/schedule' do
                                 [ 
                                    { "$and" => 
                                       [
-                                        { "schedule.arrivalHour" =>  {"$lte" =>  route_schedule.arrivalHour } }, 
-                                        { "schedule.arrivalMinute" =>  {"$lte" =>  route_schedule.arrivalMinute } }
+                                        { "schedule.arrival" =>  {"$lte" =>  route_schedule.arrival } }
+                                        #{ "schedule.arrival_minute" =>  {"$lte" =>  route_schedule.arrival_minute } }
                                       ]
                                    },
                                    {
                                       "$and" => 
                                       [
-                                        { "schedule.departureHour" =>  {"$gte" =>  route_schedule.departureHour } }, 
-                                        { "schedule.departureMinute" =>  {"$gte" =>  route_schedule.departureMinute } }
+                                        { "schedule.departure" =>  {"$gte" =>  route_schedule.departure } }
+                                        #{ "schedule.departure_minute" =>  {"$gte" =>  route_schedule.departure_minute } }
                                       ]
                                    }
                                 ],
@@ -168,7 +168,7 @@ put '/routes/:id/schedule' do
 
   halt 400 if params.to_json.nil?
   schedule = Schedule.new
-  %w(departureHour departureMinute arrivalHour arrivalMinute date frecuency).each do |key|
+  %w(departure departure arrival date frecuency).each do |key|
     unless params[key].nil? || params[key] == route[key]
       schedule[key] = params[key]
     end
@@ -194,7 +194,7 @@ put '/routes/:id/checkin' do
 
   halt 400 if params.to_json.nil?
   
-  halt 403 if route.passengers.size >= route.avaliableSits
+  halt 403 if route.passengers.size >= route.available_sits
   route.passengers << params[:user_id]
 
   halt 500 unless route.save
