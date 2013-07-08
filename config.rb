@@ -12,6 +12,14 @@ class Hitchhicker_config < Sinatra::Base
 
 configure :development do
   oauth.database = Mongo::Connection.new["API_DEV"]
+  oauth.param_authentication = true
+  oauth.authenticator = lambda do |username, password|
+    user = User.find(username)
+    user if user && user.authenticated?(password)
+  end
+  
+  
+  
   Bundler.setup(:default, :assets, :development)
   set :environment, :development
   enable :sessions, :logging, :static, :inline_templates, :method_override, :dump_errors, :run
@@ -20,6 +28,14 @@ end
     
 configure :test do
   oauth.database = Mongo::Connection.new["API_TEST"]
+  oauth.param_authentication = true
+    oauth.authenticator = lambda do |username, password|
+    user = User.find(username)
+    user if user && user.authenticated?(password)
+  end
+  
+  
+  
   Bundler.setup(:default, :assets, :test)
   set :environment, :test
   enable :sessions, :logging, :static, :inline_templates, :method_override, :dump_errors, :run

@@ -1,0 +1,17 @@
+<html>
+  <head>
+    <title>Zero to Hero</title>
+  </head>
+  <body>
+		<h2>The application
+		   your account.</h2>
+		<form action="/oauth/grant" method="post">
+		  <button type="submit">Grant</button>
+		  <input type="hidden" name="authorization" value="<%= oauth.authorization %>">
+		</form>
+		<form action="/oauth/deny" method="post">
+		  <button type="submit">Deny</button>
+		  <input type="hidden" name="authorization" value="<%= oauth.authorization %>">
+		</form>
+</body>
+</html>

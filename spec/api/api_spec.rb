@@ -6,6 +6,30 @@ describe 'The Hitchhikers API' do
   def app
     Sinatra::Application
   end
+  
+  
+  context 'regarding API OAUTH2' do
+    before :all do
+      oauth2 = YAML.load_file(File.join(File.dirname(__FILE__),'..','oauth2.yml'))
+      
+      debugger
+      Rack::OAuth2::Server.new :database => Mongo::Connection.new["API_TEST"]
+      Rack::OAuth2::Server.register(id: oauth2['client_id'], 
+                                    secret: oauth2['client_secret'], 
+                                    display_name: oauth2['display_name'], 
+                                    link: oauth2['link'], 
+                                    redirect_uri: oauth2['redirect_uri'], 
+                                    scope: oauth2['scope'].split)
+    end
+    
+    
+    it 'should authorized a client already registered' do
+      get '/?oauth_token=51dac58066b0aa463a000001'
+      debugger
+      last_response.should be_ok
+    end 
+                                  
+  end
 
   context 'regarding users' do
     before :all do

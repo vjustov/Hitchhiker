@@ -5,6 +5,7 @@ require 'debugger' if :development
 require 'rest_client'
 require "rack/oauth2/sinatra"
 require "rack/oauth2/server/admin"
+require 'erb'
 
 register Rack::OAuth2::Sinatra
 
@@ -13,12 +14,11 @@ register Rack::OAuth2::Sinatra
 end
 
 before do
-  content_type 'application/json'
-  @current_user = Rack::OAuth2::Server::Client.find(oauth.identity) if oauth.authenticated?
+  #content_type 'application/json'
+  @current_user = Rack::OAuth2::Server::User.find(oauth.identity) if oauth.authenticated?
 end
 
 get "/oauth/authorize" do
-  debugger
   if @current_user
     render "/oauth/authorize"  
   else
@@ -26,21 +26,26 @@ get "/oauth/authorize" do
   end
 end
 
+get "/oauth/login" do
+  puts oauth 
+  erb :login
+end
 
-#post "/oauth/grant" do
-#  debugger
-#  oauth.grant! "Superman"
-#end
+post "/oauth/grant" do
+  debugger
+ # if oauth.scope.include?("oauth-admin") && !@current_user.admin?
+ #   oauth.deny!
+ # else
+    oauth.grant!(oauth.authorization)
+ # end
+end
 
-#post "/oauth/deny" do
-#  oauth.deny!
-#end
+post "/oauth/deny" do
+  oauth.deny!
+end
 
 
-
-
-
-
+oauth_required '/'
 
 
 get '/' do
