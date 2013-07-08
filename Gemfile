@@ -1,7 +1,7 @@
 source 'http://www.rubygems.org'
 gem 'sinatra'
 gem 'mongoid'
-# gem 'mormon'
+gem "rack-oauth2-server", "~> 2.8.0"
 
 group :development do
   gem 'sinatra-contrib'

@@ -3,6 +3,10 @@ require 'mongoid'
 require 'sinatra/reloader' if :development
 require 'debugger' if :development
 require 'rest_client'
+require "rack/oauth2/sinatra"
+require "rack/oauth2/server/admin"
+
+register Rack::OAuth2::Sinatra
 
 ['vehicle','user', 'route'].each do |file|
   require File.join(File.dirname(__FILE__), 'lib', "#{file}.rb")
@@ -10,7 +14,33 @@ end
 
 before do
   content_type 'application/json'
+  @current_user = Rack::OAuth2::Server::Client.find(oauth.identity) if oauth.authenticated?
 end
+
+get "/oauth/authorize" do
+  debugger
+  if @current_user
+    render "/oauth/authorize"  
+  else
+    redirect "/oauth/login?authorization=#{oauth.authorization}"
+  end
+end
+
+
+#post "/oauth/grant" do
+#  debugger
+#  oauth.grant! "Superman"
+#end
+
+#post "/oauth/deny" do
+#  oauth.deny!
+#end
+
+
+
+
+
+
 
 
 get '/' do
