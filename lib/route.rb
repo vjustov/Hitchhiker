@@ -10,7 +10,8 @@ class Route
   field :starting_point, type: Hash
   field :end_point, type: Hash  
   field :route_points, type:Array
-  field :avaliable_sits, type:Integer
+
+  field :available_sits, type:Integer
   
   belongs_to :vehicle
   field :passengers, type:Array
@@ -23,16 +24,14 @@ end
 class Schedule
   include Mongoid::Document
   
-  field :departure_hour, type:Integer
-  field :departure_minute, type:Integer
-  field :arrival_hour, type:Integer 
-  field :arrival_minute, type:Integer
+
+  field :departure, type:DateTime
+  field :arrival, type:DateTime 
   
   field :date, type: String
   field :frecuency, type:Integer
-  
-  validates_presence_of :departure_hour
-  validates_presence_of :departure_minute
+
+  validates_presence_of :departure
   validates_presence_of :date
   
   embedded_in :route

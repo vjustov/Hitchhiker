@@ -108,7 +108,7 @@ describe 'The Hitchhikers API' do
         json['vehicle'] = @vehicle
         json['passengers'] = []
         json['stops'] = []
-        json['avaliable_sits'] = u
+        json['available_sits'] = u
         json['starting_point'] = {latitude: 50.729400634765625 - u, longitude: 15.723899841308594 +  u}
         json['end_point'] = {latitude: 50.729400634765625 - u, longitude: 15.723899841308594 + u}
         route = Route.new json
@@ -121,7 +121,7 @@ describe 'The Hitchhikers API' do
       post '/users/'+@user.username+'/routes', {city: "New User", 
                              country: 'false', 
                              route_link: '', 
-                             avaliable_sits: 2,
+                             available_sits: 2,
                              starting_point: {long: 50.729400634765625, lat: 15.723899841308594},
                              end_point: {long: 50.729600634765625, lat: 15.723999841308594}
                              }
@@ -144,7 +144,7 @@ describe 'The Hitchhikers API' do
       put "/routes/#{old_route['_id']}", {city: "Distrito Nacional", 
                              country: 'Republica Dominicana', 
                              route_link: 'http://testlink.com',
-                             avaliable_sits: 3, 
+                             available_sits: 3, 
                              starting_point: {long: 50.729400634765625, lat: 15.723899841308594},
                              end_point: {long: 50.729600634765625, lat: 15.723999841308594}
                              }
@@ -166,7 +166,8 @@ describe 'The Hitchhikers API' do
     
     it  'should let to set the route schedule' do
        route = @user.routes.first()
-      post "/routes/#{route.id}/schedule", {departure_hour: 8, departure_minute: 30, arrival_hour: 9, arrival_minute: 30 ,
+
+      post "/routes/#{route.id}/schedule", {departure: 2.hours.ago, arrival: Time.now,
                                             date: Date.today
                              }
       last_response.status.should eql 201
@@ -178,14 +179,16 @@ describe 'The Hitchhikers API' do
     
     it 'should not allow to set schedule within the same route timeframe' do
       route = @user.routes.skip(1).first()
-      post "/routes/#{route.id}/schedule", {departure_hour: 8, departure_minute: 50, arrival_hour: 9, arrival_minute: 30 ,
+
+      post "/routes/#{route.id}/schedule", {departure: 2.hours.ago, arrival: Time.now,
                                             date: Date.today}
       last_response.status.should eql 403
     end
     
     it  'should let to update a route schedule'  do
       route = @user.routes.first()
-      put "/routes/#{route.id}/schedule", {departure_hour: 8, departure_minute: 35, arrival_hour: 9, arrival_minute: 35 , 
+
+      put "/routes/#{route.id}/schedule", {departure:  2.hours.ago, arrival: Time.now,
                                    date: Date.today-1
                              }
       last_response.status.should eql 204
@@ -233,14 +236,14 @@ describe 'The Hitchhikers API' do
     end
     
     it 'should let passengers check into a route' do
-      route = @user.routes.where(:avaliable_sits => 1).first()
+      route = @user.routes.where(:available_sits => 1).first()
       put "/routes/#{route.id}/checkin", {user_id: User.last().id}
       last_response.status.should eql 204
       Route.where(:id => route.id).first().passengers.size.should eql 1
     end
     
     it 'should deny a passenger entry if car is full' do
-      route = @user.routes.where(:avaliable_sits => 1).first()
+      route = @user.routes.where(:available_sits => 1).first()
       put "/routes/#{route.id}/checkin", {user_id: User.last().id}
       last_response.status.should eql 403
       Route.where(:id => route.id).first().passengers.size.should eql 1

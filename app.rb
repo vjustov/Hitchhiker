@@ -135,15 +135,18 @@ post '/routes/:id/schedule' do
                                 [ 
                                    { "$and" => 
                                       [
-                                        { "schedule.arrival_hour" =>  {"$lte" =>  route_schedule.arrival_hour } }, 
-                                        { "schedule.arrival_minute" =>  {"$lte" =>  route_schedule.arrival_minute } }
+
+                                        { "schedule.arrival" =>  {"$lte" =>  route_schedule.arrival } }
+                                        #{ "schedule.arrival_minute" =>  {"$lte" =>  route_schedule.arrival_minute } }
+
                                       ]
                                    },
                                    {
                                       "$and" => 
                                       [
-                                        { "schedule.departure_hour" =>  {"$gte" =>  route_schedule.departure_hour } }, 
-                                        { "schedule.departure_minute" =>  {"$gte" =>  route_schedule.departure_minute } }
+
+                                        { "schedule.departure" =>  {"$gte" =>  route_schedule.departure } }
+                                        #{ "schedule.departure_minute" =>  {"$gte" =>  route_schedule.departure_minute } }
                                       ]
                                    }
                                 ],
@@ -168,7 +171,8 @@ put '/routes/:id/schedule' do
 
   halt 400 if params.to_json.nil?
   schedule = Schedule.new
-  %w(departure_hour departure_minute arrival_hour arrival_minute date frecuency).each do |key|
+
+  %w(departure departure arrival date frecuency).each do |key|
     unless params[key].nil? || params[key] == route[key]
       schedule[key] = params[key]
     end
@@ -194,7 +198,8 @@ put '/routes/:id/checkin' do
 
   halt 400 if params.to_json.nil?
   
-  halt 403 if route.passengers.size >= route.avaliable_sits
+
+  halt 403 if route.passengers.size >= route.available_sits
   route.passengers << params[:user_id]
 
   halt 500 unless route.save
