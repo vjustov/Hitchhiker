@@ -98,7 +98,7 @@ put '/routes/:id' do
 
   halt 400 if params.to_json.nil?
 
-  %w(city country route_link available_sits starting_point end_pint).each do |key|
+  %w(city country route_link available_sits starting_point end_point).each do |key|
     unless params[key].nil? || params[key] == route[key]
       route[key] = params[key]
     end
