@@ -13,9 +13,10 @@ register Rack::OAuth2::Sinatra
   require File.join(File.dirname(__FILE__), 'lib', "#{file}.rb")
 end
 
+
 before do
   #content_type 'application/json'
-  @current_user = Rack::OAuth2::Server::User.find(oauth.identity) if oauth.authenticated?
+  @current_user = Rack::OAuth2::Server::Client.find(oauth.identity) if oauth.authenticated?
 end
 
 get "/oauth/authorize" do
@@ -33,11 +34,11 @@ end
 
 post "/oauth/grant" do
   debugger
- # if oauth.scope.include?("oauth-admin") && !@current_user.admin?
- #   oauth.deny!
- # else
+  if oauth.scope.includle?("oauth-admin") && !@current_user.admin?
+    oauth.deny!
+  else
     oauth.grant!(oauth.authorization)
- # end
+  end
 end
 
 post "/oauth/deny" do

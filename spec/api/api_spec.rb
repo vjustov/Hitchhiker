@@ -20,11 +20,14 @@ describe 'The Hitchhikers API' do
                                     link: oauth2['link'], 
                                     redirect_uri: oauth2['redirect_uri'], 
                                     scope: oauth2['scope'].split)
+                                    
+     @code = Rack::OAuth2::Server.access_grant(oauth2['display_name'],oauth2['client_id'],oauth2['scope'])
+     debugger                                    
     end
     
     
     it 'should authorized a client already registered' do
-      get '/?oauth_token=51dac58066b0aa463a000001'
+      get '/?oauth_token=a71bfbdab0be9867209eb75b2ff034ec1ab8222e68f37a2bcbe73977f09ca6c3'
       debugger
       last_response.should be_ok
     end 
