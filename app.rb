@@ -34,11 +34,7 @@ end
 
 post "/oauth/grant" do
   debugger
-  if oauth.scope.includle?("oauth-admin") && !@current_user.admin?
-    oauth.deny!
-  else
     oauth.grant!(oauth.authorization)
-  end
 end
 
 post "/oauth/deny" do
@@ -56,6 +52,11 @@ end
 get '/users' do
   User.all.to_json
 end
+
+get '/login?:username&:password' do
+  #user = User.find()
+end
+
 
 post '/users' do
   halt 400 if request.params.nil?

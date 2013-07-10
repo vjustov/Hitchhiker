@@ -2,6 +2,7 @@ require_relative '../config.rb'
 
 class Route
   include Mongoid::Document
+  include Mongoid::Timestamps
   
   field :city, type: String
   field :country, type: String
