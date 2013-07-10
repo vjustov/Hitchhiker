@@ -53,6 +53,11 @@ describe 'The Hitchhikers API' do
         json = {}
         json['username'] = "User#{u}"
         json['hitchhiker'] = true
+        json['email'] = "email#{u}@test.com"
+        json['name'] = "name#{u}"
+        json['lastname'] = "lastname#{u}"
+        json['password'] = "password#{u}"
+        json['admin'] = u.even?
         json['routes'] = []
         #json['vehicles'] = []
         json['position'] = {latitude: 50.729400634765625, longitude: 15.723899841308594}
@@ -83,8 +88,24 @@ describe 'The Hitchhikers API' do
       json_response.size.should eql 5  
     end
 
+
+    it "should login a user" do
+      user = User.all.entries[1]
+      get "/login", {username: user.username, password: user.password}
+      last_response.should be_ok
+        
+    end
+    
     it "should add users" do
-      post '/users', {username: "NewUser", hitchhiker: 'false'}
+      post '/users', {
+        username: "NewUser",
+        hitchhiker: true,
+        email: "newuser@test.com",
+        name: "new",
+        lastname: "user",
+        password: "passwordLast",
+        admin: false,
+        routes: []}
       last_response.status.should eql 201
       json_response = JSON.parse last_response.body
       json_response['username'].should eql 'NewUser'
@@ -94,16 +115,16 @@ describe 'The Hitchhikers API' do
       
       old_user = User.all.entries[1]
       
-      put "users/#{old_user['_id']}", {username: "Newuser1", hitchhiker: 'false'}
+      put "users/#{old_user.username}", {lastname: 'Updated', hitchhiker: false}
       last_response.status.should eql 204
-      User.find_by(_id: old_user['_id'])['username'].should_not eql old_user['username']
+      User.by_username(old_user.username).first()['lastname'].should_not eql old_user['lastname']
     end
 
     it "should be able to delete users" do
 
       users_count = User.all.entries.size
 
-      delete "/users/#{User.all.entries[1]['_id']}"
+      delete "/users/#{User.all.entries[1]['username']}"
       last_response.status.should eql 200
       
       User.all.entries.size.should eql users_count -1

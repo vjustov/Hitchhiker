@@ -15,7 +15,7 @@ end
 
 
 before do
-  #content_type 'application/json'
+  content_type 'application/json'
   @current_user = Rack::OAuth2::Server::Client.find(oauth.identity) if oauth.authenticated?
 end
 
@@ -53,8 +53,10 @@ get '/users' do
   User.all.to_json
 end
 
-get '/login?:username&:password' do
-  #user = User.find()
+get '/login' do
+  halt 400 unless user = User.by_username(params[:username]).first()
+  debugger
+  halt 200 if user.password == params[:password]
 end
 
 
@@ -76,13 +78,13 @@ get '/users/hitchhikers' do
   User.hitchhikers.to_json
 end
 
-put '/users/:id' do
-  user = User.find_by(_id: params[:id])
+put '/users/:username' do
+  user = User.by_username(params[:username]).first()
   halt 404 if user.nil?
-
+debugger
   halt 400 if params.to_json.nil?
 
-  %w(username hitchhiker).each do |key|
+  %w(name lastname email password image admin hitchhiker).each do |key|
     unless params[key].nil? || params[key] == user[key]
       user[key] = params[key]
     end
@@ -93,8 +95,8 @@ put '/users/:id' do
   [204]
 end
 
-delete '/users/:id' do
-  user = User.find_by(_id: params[:id])
+delete '/users/:username' do
+  user = User.by_username(params[:username]).first()
   halt 404 if user.nil?
 
   halt 500 unless user.destroy
