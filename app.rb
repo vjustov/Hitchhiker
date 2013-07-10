@@ -69,11 +69,11 @@ end
 
 get '/users/drivers' do
   #debugger
-  User.where(hitchhiker: 'false').to_json
+  User.drivers.to_json
 end
 
 get '/users/hitchhikers' do
-  User.where(hitchhiker: 'true').to_json
+  User.hitchhikers.to_json
 end
 
 put '/users/:id' do
@@ -102,20 +102,20 @@ end
 
 get '/users/long=:long&lat=:lat' do
   # debugger
-  users = User.where position: { '$near' => [ params[:long], params[:lat] ], '$maxdistance' => 5 }
+  users = User.near(params[:long], params[:lat])
   users.to_json
 end
 
 get '/users/:username/routes' do
   halt 400 if params[:username].nil?
-  user = User.where(username: params[:username]).first().routes.to_json
+  user = User.by_username(params[:username]).first().routes.to_json
 end
 
 
 
 post '/users/:username/routes' do
   halt 400 if request.params.nil?
-  user = User.where('username' => params[:username]).first
+  user = User.by_username(params[:username]).first
   halt 404 if user.nil?
   
   #debugger
@@ -135,7 +135,7 @@ put '/routes/:id' do
 
   halt 400 if params.to_json.nil?
 
-  %w(city country route_link available_sits starting_point end_point).each do |key|
+  %w(city country route_link avaliable_sits starting_point end_point).each do |key|
     unless params[key].nil? || params[key] == route[key]
       route[key] = params[key]
     end
@@ -172,13 +172,16 @@ post '/routes/:id/schedule' do
                                 [ 
                                    { "$and" => 
                                       [
+
                                         { "schedule.arrival" =>  {"$lte" =>  route_schedule.arrival } }
                                         #{ "schedule.arrival_minute" =>  {"$lte" =>  route_schedule.arrival_minute } }
+
                                       ]
                                    },
                                    {
                                       "$and" => 
                                       [
+
                                         { "schedule.departure" =>  {"$gte" =>  route_schedule.departure } }
                                         #{ "schedule.departure_minute" =>  {"$gte" =>  route_schedule.departure_minute } }
                                       ]
@@ -205,6 +208,7 @@ put '/routes/:id/schedule' do
 
   halt 400 if params.to_json.nil?
   schedule = Schedule.new
+
   %w(departure departure arrival date frecuency).each do |key|
     unless params[key].nil? || params[key] == route[key]
       schedule[key] = params[key]
@@ -231,6 +235,7 @@ put '/routes/:id/checkin' do
 
   halt 400 if params.to_json.nil?
   
+
   halt 403 if route.passengers.size >= route.available_sits
   route.passengers << params[:user_id]
 

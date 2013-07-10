@@ -205,6 +205,7 @@ describe 'The Hitchhikers API' do
     
     it  'should let to set the route schedule' do
        route = @user.routes.first()
+
       post "/routes/#{route.id}/schedule", {departure: 2.hours.ago, arrival: Time.now,
                                             date: Date.today
                              }
@@ -217,6 +218,7 @@ describe 'The Hitchhikers API' do
     
     it 'should not allow to set schedule within the same route timeframe' do
       route = @user.routes.skip(1).first()
+
       post "/routes/#{route.id}/schedule", {departure: 2.hours.ago, arrival: Time.now,
                                             date: Date.today}
       last_response.status.should eql 403
@@ -224,6 +226,7 @@ describe 'The Hitchhikers API' do
     
     it  'should let to update a route schedule'  do
       route = @user.routes.first()
+
       put "/routes/#{route.id}/schedule", {departure:  2.hours.ago, arrival: Time.now,
                                    date: Date.today-1
                              }

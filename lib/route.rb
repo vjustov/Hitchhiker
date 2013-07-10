@@ -11,6 +11,7 @@ class Route
   field :starting_point, type: Hash
   field :end_point, type: Hash  
   field :route_points, type:Array
+
   field :available_sits, type:Integer
   
   belongs_to :vehicle
@@ -24,12 +25,13 @@ end
 class Schedule
   include Mongoid::Document
   
+
   field :departure, type:DateTime
   field :arrival, type:DateTime 
   
   field :date, type: String
   field :frecuency, type:Integer
-  
+
   validates_presence_of :departure
   validates_presence_of :date
   
