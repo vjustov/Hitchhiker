@@ -9,10 +9,10 @@ describe 'The Hitchhikers API' do
   
   
   context 'regarding API OAUTH2' do
+    
     before :all do
       oauth2 = YAML.load_file(File.join(File.dirname(__FILE__),'..','oauth2.yml'))
       
-      debugger
       Rack::OAuth2::Server.new :database => Mongo::Connection.new["API_TEST"]
       Rack::OAuth2::Server.register(id: oauth2['client_id'], 
                                     secret: oauth2['client_secret'], 
@@ -21,15 +21,27 @@ describe 'The Hitchhikers API' do
                                     redirect_uri: oauth2['redirect_uri'], 
                                     scope: oauth2['scope'].split)
                                     
-     @code = Rack::OAuth2::Server.access_grant(oauth2['display_name'],oauth2['client_id'],oauth2['scope'])
-     debugger                                    
+     @code = Rack::OAuth2::Server.access_grant(oauth2['client_id'],oauth2['client_id'],oauth2['scope'])
+     post '/oauth/access_token', {grant_type: "authorization_code", 
+                                 code: @code,
+                                 redirect_uri: oauth2['redirect_uri'],
+                                 client_id: oauth2['client_id'],
+                                 client_secret: oauth2['client_secret']
+                                }
+    @token = JSON.parse(last_response.body) if last_response.status = 200                                
+         
     end
     
     
     it 'should authorized a client already registered' do
-      get '/?oauth_token=a71bfbdab0be9867209eb75b2ff034ec1ab8222e68f37a2bcbe73977f09ca6c3'
       debugger
+      get "/?oauth_token=#{@token['access_token']}"
       last_response.should be_ok
+    end 
+    
+    it 'should return Unauthorized [401], if a valid token is not sent in the resquest' do
+      get "/"
+      last_response.status.should eql(401) 
     end 
                                   
   end
