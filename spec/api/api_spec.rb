@@ -7,6 +7,10 @@ describe 'The Hitchhikers API' do
     Sinatra::Application
   end
   
+  context 'regarding the fb interconnection' do
+    it 'should log in with the facebook credentials'
+    it "should get a list of all the user's friends"
+  end
   
   context 'regarding API OAUTH2' do
     before :all do
@@ -29,7 +33,7 @@ describe 'The Hitchhikers API' do
     it 'should authorized a client already registered' do
       get '/?oauth_token=a71bfbdab0be9867209eb75b2ff034ec1ab8222e68f37a2bcbe73977f09ca6c3'
       debugger
-      last_response.should be_ok
+      last_response.status.should eql 200
     end 
                                   
   end
