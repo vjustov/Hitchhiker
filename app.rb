@@ -160,6 +160,9 @@ post '/users/:username/routes' do
   [201, user.to_json]
 end
 
+get '/routes' do
+  Route.active_routes.to_json
+end
 
 put '/routes/:id' do
   route = Route.find_by(_id: params[:id])
