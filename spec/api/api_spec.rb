@@ -147,6 +147,13 @@ describe 'The Hitchhikers API' do
         @user.save      
       end
     end
+
+    it 'should give a list of all actuve routes' do
+      get '/routes'
+      last_response.should be_ok
+      routes = JSON.parse(last_response.body)
+      routes.size.should eql 5
+    end
     
     it 'should add a route'  do
       post '/users/'+@user.username+'/routes', {city: "New User", 
