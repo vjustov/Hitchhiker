@@ -17,7 +17,8 @@ describe 'The Hitchhikers API' do
     before :all do
       oauth2 = YAML.load_file(File.join(File.dirname(__FILE__),'..','oauth2.yml'))
       @secret = oauth2['client_secret']
-      debugger
+
+
       Rack::OAuth2::Server.new :database => Mongo::Connection.new["API_TEST"]
       Rack::OAuth2::Server.register(id: oauth2['client_id'], 
                                     secret: oauth2['client_secret'], 
@@ -39,7 +40,6 @@ describe 'The Hitchhikers API' do
     
     
     it 'should authorized a client already registered' do
-    debugger
       get "/?oauth_token=#{@token['access_token']}"
       last_response.should be_ok
     end 
@@ -69,6 +69,14 @@ describe 'The Hitchhikers API' do
         user = Hitchhiker.new json
         user.save
       end
+    end
+
+    it "should give user data" do
+      @user = Hitchhiker.first()
+      get "/hitchhikers?username=#{@user.username}"
+      last_response.should be_ok
+      user = JSON.parse(last_response.body)
+      user['username'] = @user.username
     end
 
     it "should give a list of all users" do

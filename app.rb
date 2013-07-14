@@ -82,7 +82,13 @@ get '/' do
 end
 
 get '/hitchhikers' do
+  unless params[:username].nil?
+    user = Hitchhiker.by_username(params[:username]).first
+    halt 404, 'User not found' if user.nil?
+    halt 200, user.to_json
+  end
   Hitchhiker.all.to_json
+
 end
 
 get '/login' do
