@@ -12,7 +12,7 @@ register Rack::OAuth2::Sinatra
 
 Mongoid.load!(File.join(File.dirname(__FILE__), '..','mongoid.yaml'), :test)
 
-Rspec.configure do |config|
+RSpec.configure do |config|
   config.color_enabled = true
   config.formatter = :documentation
   config.include Rack::Test::Methods  

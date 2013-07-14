@@ -13,13 +13,16 @@ class Route
   field :route_points, type:Array
 
   field :available_sits, type:Integer
+  field :active, type:Boolean, default: true
   
   belongs_to :vehicle
   field :passengers, type:Array
-  
+
   embeds_many :stops
   belongs_to :user
   embeds_one :schedule
+
+  scope :active_routes, where(active: true)
 end
 
 class Schedule

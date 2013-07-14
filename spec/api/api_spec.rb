@@ -7,12 +7,17 @@ describe 'The Hitchhikers API' do
     Sinatra::Application
   end
   
+  context 'regarding the fb interconnection' do
+    it 'should log in with the facebook credentials'
+    it "should get a list of all the user's friends"
+  end
   
   context 'regarding API OAUTH2' do
     
     before :all do
       oauth2 = YAML.load_file(File.join(File.dirname(__FILE__),'..','oauth2.yml'))
       
+
       Rack::OAuth2::Server.new :database => Mongo::Connection.new["API_TEST"]
       Rack::OAuth2::Server.register(id: oauth2['client_id'], 
                                     secret: oauth2['client_secret'], 
@@ -174,6 +179,22 @@ describe 'The Hitchhikers API' do
         @user.routes << route
         @user.save      
       end
+    end
+
+    it 'should give a list of all active routes' do
+      get '/routes'
+      last_response.should be_ok
+      routes = JSON.parse(last_response.body)
+      routes.size.should eql 5
+    end
+
+    it 'should give the detail of a route' do
+      route = @user.routes.first()
+      get "/routes/#{route.id}"
+
+      last_response.should be_ok
+      result = JSON.parse(last_response.body)
+      result['country'].should eql route.country
     end
     
     it 'should add a route'  do

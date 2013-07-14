@@ -6,6 +6,7 @@ require 'rest_client'
 require "rack/oauth2/sinatra"
 require "rack/oauth2/server/admin"
 require 'erb'
+require 'omniauth-facebook'
 
 register Rack::OAuth2::Sinatra
 
@@ -13,10 +14,42 @@ register Rack::OAuth2::Sinatra
   require File.join(File.dirname(__FILE__), 'lib', "#{file}.rb")
 end
 
+use OmniAuth::Builder do
+  provider :facebook, '204327486390146','8c374e0a7d5fcf83632dd7881c0e90df',  {:client_options => {:ssl => {:verify => false}}} 
+end
+
+enable :sessions
 
 before do
   content_type 'application/json'
   @current_user = Rack::OAuth2::Server::Client.find(oauth.identity) if oauth.authenticated?
+end
+
+get '/' do
+  redirect '/auth/facebook'
+end
+
+get '/auth/:provider/callback' do#, to: 'sessions#create'
+  
+  omniauth = JSON.parse request.env['omniauth.auth'].to_json
+  debugger
+  token = omniauth['credentials']['token']
+  friends_url = "https://graph.facebook.com/fql?q=SELECT+uid,name,first_name,last_name,username,locale+FROM+user+WHERE+uid+IN+(SELECT+uid2+FROM+friend+WHERE+uid1+=+me())&access_token=#{token}"
+
+  response_data = JSON.parse RestClient.get friends_url 
+  response_data['data'].each do |user_info|
+    #do something with the friend data
+
+    # friend_id = user_id['uid2']
+    # friend_info = JSON.parse RestClient.get "http://graph.facebook.com/#{friend_id}/"
+    # puts friend_info['name']
+  end
+  debugger
+  response_data['data'].to_json
+end
+
+get '/auth/failure' do
+  params[:message].to_json
 end
 
 get "/oauth/authorize" do
@@ -126,6 +159,16 @@ post '/users/:username/routes' do
   [201, user.to_json]
 end
 
+get '/routes' do
+  Route.active_routes.to_json
+end
+
+get '/routes/:id' do
+  halt 400 if request.params.nil?
+  route = Route.find_by(_id: params[:id])
+  halt 404 if route.nil?
+  route.to_json
+end
 
 put '/routes/:id' do
   route = Route.find_by(_id: params[:id])
