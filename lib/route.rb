@@ -6,6 +6,8 @@ class Route
   
   field :city, type: String
   field :country, type: String
+  field :from, type: String
+  field :to, type: String 
   
   field :route_link, type: String
   field :starting_point, type: Hash
