@@ -70,6 +70,14 @@ describe 'The Hitchhikers API' do
       end
     end
 
+    it "should give user data" do
+      @user = User.first()
+      get "/users?username=#{@user.username}"
+      last_response.should be_ok
+      user = JSON.parse(last_response.body)
+      user['username'] = @user.username
+    end
+
     it "should give a list of all users" do
       get '/users'
       last_response.should be_ok
