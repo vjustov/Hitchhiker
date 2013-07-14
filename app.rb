@@ -164,6 +164,13 @@ get '/routes' do
   Route.active_routes.to_json
 end
 
+get '/routes/:id' do
+  halt 400 if request.params.nil?
+  route = Route.find_by(_id: params[:id])
+  halt 404 if route.nil?
+  route.to_json
+end
+
 put '/routes/:id' do
   route = Route.find_by(_id: params[:id])
   halt 404 if route.nil?

@@ -16,7 +16,7 @@ describe 'The Hitchhikers API' do
     before :all do
       oauth2 = YAML.load_file(File.join(File.dirname(__FILE__),'..','oauth2.yml'))
       
-      debugger
+      #debugger
       Rack::OAuth2::Server.new :database => Mongo::Connection.new["API_TEST"]
       Rack::OAuth2::Server.register(id: oauth2['client_id'], 
                                     secret: oauth2['client_secret'], 
@@ -26,13 +26,13 @@ describe 'The Hitchhikers API' do
                                     scope: oauth2['scope'].split)
                                     
      @code = Rack::OAuth2::Server.access_grant(oauth2['display_name'],oauth2['client_id'],oauth2['scope'])
-     debugger                                    
+     #debugger                                    
     end
     
     
     it 'should authorized a client already registered' do
       get '/?oauth_token=a71bfbdab0be9867209eb75b2ff034ec1ab8222e68f37a2bcbe73977f09ca6c3'
-      debugger
+      #debugger
       last_response.status.should eql 200
     end 
                                   
@@ -148,11 +148,20 @@ describe 'The Hitchhikers API' do
       end
     end
 
-    it 'should give a list of all actuve routes' do
+    it 'should give a list of all active routes' do
       get '/routes'
       last_response.should be_ok
       routes = JSON.parse(last_response.body)
       routes.size.should eql 5
+    end
+
+    it 'should give the detail of a route' do
+      route = @user.routes.first()
+      get "/routes/#{route.id}"
+
+      last_response.should be_ok
+      result = JSON.parse(last_response.body)
+      result['country'].should eql route.country
     end
     
     it 'should add a route'  do
