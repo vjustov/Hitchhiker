@@ -2,6 +2,6 @@
   client_id: 51dac58066b0aa463a000001
   client_secret: 11fd42e305abeee4a7bcf60a8fb568712b87a48a456739a6860b49289e3c2ba2
   display_name: HitchHicker
-  link: http://localhost:9292/users
+  link: http://localhost:9292/hitchhikers
   redirect_uri: http://localhost:9292/routes
   scope: driver

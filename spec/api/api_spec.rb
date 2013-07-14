@@ -16,8 +16,8 @@ describe 'The Hitchhikers API' do
     
     before :all do
       oauth2 = YAML.load_file(File.join(File.dirname(__FILE__),'..','oauth2.yml'))
-      
-
+      @secret = oauth2['client_secret']
+      debugger
       Rack::OAuth2::Server.new :database => Mongo::Connection.new["API_TEST"]
       Rack::OAuth2::Server.register(id: oauth2['client_id'], 
                                     secret: oauth2['client_secret'], 
@@ -39,6 +39,7 @@ describe 'The Hitchhikers API' do
     
     
     it 'should authorized a client already registered' do
+    debugger
       get "/?oauth_token=#{@token['access_token']}"
       last_response.should be_ok
     end 
@@ -52,10 +53,10 @@ describe 'The Hitchhikers API' do
 
   context 'regarding users' do
     before :all do
-      User.destroy_all
+      Hitchhiker.destroy_all
       5.times do |u|
         json = {}
-        json['username'] = "User#{u}"
+        json['username'] = "Hitchhiker#{u}"
         json['hitchhiker'] = true
         json['email'] = "email#{u}@test.com"
         json['name'] = "name#{u}"
@@ -65,28 +66,28 @@ describe 'The Hitchhikers API' do
         json['routes'] = []
         #json['vehicles'] = []
         json['position'] = {latitude: 50.729400634765625, longitude: 15.723899841308594}
-        user = User.new json
+        user = Hitchhiker.new json
         user.save
       end
     end
 
     it "should give a list of all users" do
-      get '/users'
+      get '/hitchhikers'
       last_response.should be_ok
       json_response = JSON.parse last_response.body
       json_response.size.should eql 5
-      json_response.first['username'].should eql "User0"
+      json_response.first['username'].should eql "Hitchhiker0"
     end
 
     it "should list all drives" do
-      get '/users/drivers'
+      get '/hitchhikers/drivers'
       last_response.should be_ok
       json_response = JSON.parse last_response.body
       json_response.size.should eql 0  
     end
 
     it "should list all hitchhikers" do
-      get '/users/hitchhikers'
+      get '/hitchhikers/hitchhikers'
       last_response.should be_ok
       json_response = JSON.parse last_response.body
       json_response.size.should eql 5  
@@ -94,15 +95,15 @@ describe 'The Hitchhikers API' do
 
 
     it "should login a user" do
-      user = User.all.entries[1]
+      user = Hitchhiker.all.entries[1]
       get "/login", {username: user.username, password: user.password}
       last_response.should be_ok
         
     end
     
     it "should add users" do
-      post '/users', {
-        username: "NewUser",
+      post '/hitchhikers', {
+        username: "NewHitchhiker",
         hitchhiker: true,
         email: "newuser@test.com",
         name: "new",
@@ -112,37 +113,37 @@ describe 'The Hitchhikers API' do
         routes: []}
       last_response.status.should eql 201
       json_response = JSON.parse last_response.body
-      json_response['username'].should eql 'NewUser'
+      json_response['username'].should eql 'NewHitchhiker'
     end
 
     it "should be able to edit users" do
       
-      old_user = User.all.entries[1]
+      old_user = Hitchhiker.all.entries[1]
       
-      put "users/#{old_user.username}", {lastname: 'Updated', hitchhiker: false}
+      put "/hitchhikers/#{old_user.username}", {lastname: 'Updated', hitchhiker: false}
       last_response.status.should eql 204
-      User.by_username(old_user.username).first()['lastname'].should_not eql old_user['lastname']
+      Hitchhiker.by_username(old_user.username).first()['lastname'].should_not eql old_user['lastname']
     end
 
     it "should be able to delete users" do
 
-      users_count = User.all.entries.size
+      users_count = Hitchhiker.all.entries.size
 
-      delete "/users/#{User.all.entries[1]['username']}"
+      delete "/hitchhikers/#{Hitchhiker.all.entries[1]['username']}"
       last_response.status.should eql 200
-      
-      User.all.entries.size.should eql users_count -1
+      debugger
+      Hitchhiker.all.entries.size.should eql users_count -1
     end
   end
 
   context 'regarding users location' do
     it "should be able to get all users within reach" do
-      user = User.new username: "Searching User", hitchhiker: false, position: {latitude: 50.729400634765625, longitude: 15.723899841308594}
+      user = Hitchhiker.new username: "Searching Hitchhiker", hitchhiker: false, position: {latitude: 50.729400634765625, longitude: 15.723899841308594}
        #debugger
 
-      get "/users/long=#{user.position[:longitude]}&lat=#{user.position[:latitude]}"
-      get "/users/lat=#{user.position[:longitude]}&long=#{user.position[:latitude]}"
-      #get "/users/lat"
+      get "/hitchhikers/long=#{user.position[:longitude]}&lat=#{user.position[:latitude]}"
+      get "/hitchhikers/lat=#{user.position[:longitude]}&long=#{user.position[:latitude]}"
+      #get "/hitchhikers/lat"
       
       # debugger
       last_response.status.should eql 200
@@ -161,7 +162,7 @@ describe 'The Hitchhikers API' do
       Vehicle.destroy_all
       Schedule.destroy_all
       
-      @user = User.first()
+      @user = Hitchhiker.first()
       @vehicle = Vehicle.new  brand: "Honda", model: "Civic", year:2008, sits:5, hasTrunk: false 
       @vehicle.save 
       5.times do |u|
@@ -198,7 +199,7 @@ describe 'The Hitchhikers API' do
     end
     
     it 'should add a route'  do
-      post '/users/'+@user.username+'/routes', {city: "New User", 
+      post '/hitchhikers/'+@user.username+'/routes', {city: "New Hitchhiker", 
                              country: 'false', 
                              route_link: '', 
                              available_sits: 2,
@@ -212,7 +213,7 @@ describe 'The Hitchhikers API' do
     
     it 'should list routes by username' do
       
-      get '/users/'+@user.username+'/routes'
+      get '/hitchhikers/'+@user.username+'/routes'
       last_response.should be_ok
       json_response = JSON.parse last_response.body
       json_response.size.should eql 6  
@@ -317,14 +318,14 @@ describe 'The Hitchhikers API' do
     
     it 'should let passengers check into a route' do
       route = @user.routes.where(:available_sits => 1).first()
-      put "/routes/#{route.id}/checkin", {user_id: User.last().id}
+      put "/routes/#{route.id}/checkin", {user_id: Hitchhiker.last().id}
       last_response.status.should eql 204
       Route.where(:id => route.id).first().passengers.size.should eql 1
     end
     
     it 'should deny a passenger entry if car is full' do
       route = @user.routes.where(:available_sits => 1).first()
-      put "/routes/#{route.id}/checkin", {user_id: User.last().id}
+      put "/routes/#{route.id}/checkin", {user_id: Hitchhiker.last().id}
       last_response.status.should eql 403
       Route.where(:id => route.id).first().passengers.size.should eql 1
     end

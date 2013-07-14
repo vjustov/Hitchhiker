@@ -9,5 +9,5 @@ class Vehicle
   
   
   has_many :routes
-  has_many :users
+  has_many :hitchhikers
 end

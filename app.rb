@@ -10,7 +10,7 @@ require 'omniauth-facebook'
 
 register Rack::OAuth2::Sinatra
 
-['vehicle','user', 'route'].each do |file|
+['vehicle','hitchhiker', 'route'].each do |file|
   require File.join(File.dirname(__FILE__), 'lib', "#{file}.rb")
 end
 
@@ -21,7 +21,7 @@ end
 enable :sessions
 
 before do
-  content_type 'application/json'
+  #content_type 'application/json'
   @current_user = Rack::OAuth2::Server::Client.find(oauth.identity) if oauth.authenticated?
 end
 
@@ -81,35 +81,35 @@ get '/' do
   'hello world'
 end
 
-get '/users' do
-  User.all.to_json
+get '/hitchhikers' do
+  Hitchhiker.all.to_json
 end
 
 get '/login' do
-  halt 400 unless user = User.by_username(params[:username]).first()
+  halt 400 unless user = Hitchhiker.by_username(params[:username]).first()
   halt 200 if user.password == params[:password]
 end
 
 
-post '/users' do
+post '/hitchhikers' do
   halt 400 if request.params.nil?
-  user = User.new request.params 
+  user = Hitchhiker.new request.params 
 
   halt 500 unless user.save
 
   [201, user.to_json]
 end
 
-get '/users/drivers' do
-  User.drivers.to_json
+get '/hitchhikers/drivers' do
+  Hitchhiker.drivers.to_json
 end
 
-get '/users/hitchhikers' do
-  User.hitchhikers.to_json
+get '/hitchhikers/hitchhikers' do
+  Hitchhiker.hitchhikers.to_json
 end
 
-put '/users/:username' do
-  user = User.by_username(params[:username]).first()
+put '/hitchhikers/:username' do
+  user = Hitchhiker.by_username(params[:username]).first()
   halt 404 if user.nil?
   halt 400 if params.to_json.nil?
 
@@ -124,29 +124,29 @@ put '/users/:username' do
   [204]
 end
 
-delete '/users/:username' do
-  user = User.by_username(params[:username]).first()
+delete '/hitchhikers/:username' do
+  user = Hitchhiker.by_username(params[:username]).first()
   halt 404 if user.nil?
 
   halt 500 unless user.destroy
 end
 
-get '/users/long=:long&lat=:lat' do
+get '/hitchhikers/long=:long&lat=:lat' do
   # debugger
-  users = User.near(params[:long], params[:lat])
+  users = Hitchhiker.near(params[:long], params[:lat])
   users.to_json
 end
 
-get '/users/:username/routes' do
+get '/hitchhikers/:username/routes' do
   halt 400 if params[:username].nil?
-  user = User.by_username(params[:username]).first().routes.to_json
+  user = Hitchhiker.by_username(params[:username]).first().routes.to_json
 end
 
 
 
-post '/users/:username/routes' do
+post '/hitchhikers/:username/routes' do
   halt 400 if request.params.nil?
-  user = User.by_username(params[:username]).first
+  user = Hitchhiker.by_username(params[:username]).first
   halt 404 if user.nil?
   
   #debugger
@@ -228,7 +228,7 @@ post '/routes/:id/schedule' do
                                       ]
                                    }
                                 ],
-                             "user_id" => user_route.user_id }
+                             "hitchhiker_id" => user_route.user_id }
                   ) 
                   
       
@@ -333,9 +333,9 @@ delete '/routes/:id/stops/:id_stop' do
   
 end
 
-get '/users/lat=:lat&long=:long' do
+get '/hitchhikers/lat=:lat&long=:long' do
   #debugger
-  users = User.where position: { '$near' => [ params[:long], params[:lat] ], '$maxdistance' => 5 }
+  users = Hitchhiker.where position: { '$near' => [ params[:long], params[:lat] ], '$maxdistance' => 5 }
   users.to_json
 end
 

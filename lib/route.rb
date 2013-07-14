@@ -21,7 +21,7 @@ class Route
   field :passengers, type:Array
 
   embeds_many :stops
-  belongs_to :user
+  belongs_to :hitchhiker
   embeds_one :schedule
 
   scope :active_routes, where(active: true)
