@@ -34,7 +34,6 @@ describe 'The Hitchhikers API' do
     
     
     it 'should authorized a client already registered' do
-      debugger
       get "/?oauth_token=#{@token['access_token']}"
       last_response.should be_ok
     end 

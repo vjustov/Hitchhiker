@@ -33,7 +33,6 @@ get "/oauth/login" do
 end
 
 post "/oauth/grant" do
-  debugger
     oauth.grant!(oauth.authorization)
 end
 
@@ -55,7 +54,6 @@ end
 
 get '/login' do
   halt 400 unless user = User.by_username(params[:username]).first()
-  debugger
   halt 200 if user.password == params[:password]
 end
 
@@ -70,7 +68,6 @@ post '/users' do
 end
 
 get '/users/drivers' do
-  #debugger
   User.drivers.to_json
 end
 
@@ -81,7 +78,6 @@ end
 put '/users/:username' do
   user = User.by_username(params[:username]).first()
   halt 404 if user.nil?
-debugger
   halt 400 if params.to_json.nil?
 
   %w(name lastname email password image admin hitchhiker).each do |key|
