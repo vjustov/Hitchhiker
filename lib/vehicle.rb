@@ -5,7 +5,7 @@ class Vehicle
   field :model, type: String
   field :year, type: Integer
   field :sits, type: Integer
-  field :hasTrunk, type: Boolean
+  field :has_trunk, type: Boolean
   
   
   has_many :routes
