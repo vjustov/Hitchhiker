@@ -347,6 +347,15 @@ end
 
 
 #LET'S GET SOME VEHICLES
+
+get '/vehicles' do
+  unless params[:id].nil?
+    vehicle = Vehicle.find(params[:id])
+    halt 200, vehicle.to_json
+  end
+  Vehicle.all.to_json
+end
+
 get '/vehicles/brands' do
   brands = Vehicle.distinct(:brand)
   brands.to_json

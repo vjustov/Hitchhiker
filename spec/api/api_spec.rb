@@ -162,6 +162,18 @@ describe 'The Hitchhikers API' do
       vehicle3.save
     end
 
+    it 'should get all the vehicles' do
+      get '/vehicles'
+      last_response.should be_ok
+      vehicles = JSON.parse(last_response.body)
+      vehicles.size.should eql 7
+    end
+
+    it 'should get a vehicle' do
+      get "/vehicles/#{Vehicle.first.id}"
+      last_response.should be_ok
+    end
+
     it 'should get all brands' do
       get '/vehicles/brands'
       last_response.should be_ok
