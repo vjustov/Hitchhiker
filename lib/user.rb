@@ -27,7 +27,7 @@ class User
   
 
   #has_and_belongs_to_many :vehicles, inverse_of: nil 
-  #has_many :vehicles 
+  has_many :vehicles 
   has_many :routes
 
 def admin?

@@ -87,6 +87,8 @@ describe 'The Hitchhikers API' do
       json_response.first['username'].should eql "Hitchhiker0"
     end
 
+
+
     it "should list all drives" do
       get '/hitchhikers/drivers'
       last_response.should be_ok
@@ -139,10 +141,51 @@ describe 'The Hitchhikers API' do
 
       delete "/hitchhikers/#{Hitchhiker.all.entries[1]['username']}"
       last_response.status.should eql 200
-      debugger
+      #debugger
       Hitchhiker.all.entries.size.should eql users_count -1
     end
   end
+
+  context "Let's get some vehicles" do
+
+    before :all do
+      Vehicle.destroy_all
+      year = 2010
+      5.times do |c|
+        vehicle = Vehicle.new(brand: 'Toyota', model: 'Camry', year: year + c, sits: 4, has_trunk: true)
+        vehicle.save
+      end
+      vehicle2 = Vehicle.new(brand: 'Toyota', model: 'Corolla', year: year, sits: 4, has_trunk: false)
+      vehicle2.save
+
+      vehicle3 = Vehicle.new(brand: 'Honda', model: 'CRV', year: year, sits: 4, has_trunk: false)
+      vehicle3.save
+    end
+
+    it 'should get all brands' do
+      get '/vehicles/brands'
+      last_response.should be_ok
+      brands = JSON.parse(last_response.body)
+      brands.size.should eql 2
+    end
+
+    it 'should get all model from brand' do
+      get "/vehicles/Toyota/models"
+      last_response.should be_ok
+      models = JSON.parse(last_response.body)
+      models.size.should eql 2
+    end
+
+    it 'should get all years and ids from model and brand' do
+      vehicle = Vehicle.first
+      get "/vehicles/#{vehicle.brand}/#{vehicle.model}/years"
+      last_response.should be_ok
+      years = JSON.parse(last_response.body)
+      years.size.should eql 5
+    end
+
+  end
+
 
   context 'regarding users location' do
     it "should be able to get all users within reach" do
@@ -167,11 +210,11 @@ describe 'The Hitchhikers API' do
      
      before :all do
       Route.destroy_all
-      Vehicle.destroy_all
+      #Vehicle.destroy_all
       Schedule.destroy_all
       
       @user = Hitchhiker.first()
-      @vehicle = Vehicle.new  brand: "Honda", model: "Civic", year:2008, sits:5, hasTrunk: false 
+      @vehicle = Vehicle.new  brand: "Honda", model: "Civic", year:2008, sits:5, has_trunk: false 
       @vehicle.save 
       5.times do |u|
         json = {}

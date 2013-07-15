@@ -32,7 +32,7 @@ end
 get '/auth/:provider/callback' do#, to: 'sessions#create'
   
   omniauth = JSON.parse request.env['omniauth.auth'].to_json
-  debugger
+  #debugger
   token = omniauth['credentials']['token']
   friends_url = "https://graph.facebook.com/fql?q=SELECT+uid,name,first_name,last_name,username,locale+FROM+user+WHERE+uid+IN+(SELECT+uid2+FROM+friend+WHERE+uid1+=+me())&access_token=#{token}"
 
@@ -44,7 +44,7 @@ get '/auth/:provider/callback' do#, to: 'sessions#create'
     # friend_info = JSON.parse RestClient.get "http://graph.facebook.com/#{friend_id}/"
     # puts friend_info['name']
   end
-  debugger
+  #debugger
   response_data['data'].to_json
 end
 
@@ -345,6 +345,24 @@ get '/hitchhikers/lat=:lat&long=:long' do
   users.to_json
 end
 
+
+#LET'S GET SOME VEHICLES
+get '/vehicles/brands' do
+  brands = Vehicle.distinct(:brand)
+  brands.to_json
+end
+
+get '/vehicles/:brand/models' do
+  halt 400 if params[:brand].nil?
+  models = Vehicle.where(:brand => params[:brand]).distinct(:model)
+  models.to_json
+end
+
+get '/vehicles/:brand/:model/years' do
+  halt 400 if params[:brand].nil? && params[:model].nil?
+  years = Vehicle.where(:brand => params[:brand], :model=> params[:model]).distinct(:year)
+  years.to_json
+end
 
 #LET'S GET SOME ROUTES
 get '/osrm/routes' do
