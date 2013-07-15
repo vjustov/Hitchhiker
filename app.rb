@@ -21,7 +21,7 @@ end
 enable :sessions
 
 before do
-  #content_type 'application/json'
+  content_type 'application/json'
   @current_user = Rack::OAuth2::Server::Client.find(oauth.identity) if oauth.authenticated?
 end
 
@@ -165,9 +165,16 @@ post '/hitchhikers/:username/routes' do
   [201, user.to_json]
 end
 
+
+
 get '/routes' do
   Route.active_routes.to_json
 end
+
+get'/routes/new' do
+  Route.new
+end
+
 
 get '/routes/:id' do
   halt 400 if request.params.nil?
@@ -175,6 +182,11 @@ get '/routes/:id' do
   halt 404 if route.nil?
   route.to_json
 end
+
+post '/routes' do
+ 
+end
+
 
 put '/routes/:id' do
   route = Route.find_by(_id: params[:id])
@@ -209,10 +221,8 @@ post '/routes/:id/schedule' do
    
   route_schedule = Schedule.new JSON.parse(request.params.to_json)
     
-  user_routes = route.user.routes
-  
+  user_routes = route.hitchhiker.routes
   user_routes.each do |user_route|
-    
     unless (user_route.schedule.nil?) then 
       schedule = Route.where(
                             { "$or" =>
@@ -234,7 +244,7 @@ post '/routes/:id/schedule' do
                                       ]
                                    }
                                 ],
-                             "hitchhiker_id" => user_route.user_id }
+                             "hitchhiker_id" => user_route.hitchhiker_id }
                   ) 
                   
       

@@ -177,6 +177,8 @@ describe 'The Hitchhikers API' do
         json = {}
         json['country'] = "Country#{u}"
         json['city'] = "City#{u}"
+        json['from'] = "micasa#{u}"
+        json['to'] = "tucasa#{u}"
         json['route_link'] = "http://#{u}.com"
         json['vehicle'] = @vehicle
         json['passengers'] = []
@@ -209,7 +211,9 @@ describe 'The Hitchhikers API' do
     it 'should add a route'  do
       post '/hitchhikers/'+@user.username+'/routes', {city: "New Hitchhiker", 
                              country: 'false', 
-                             route_link: '', 
+                             route_link: '',
+                             from: 'alameda',
+                             to: 'herrera', 
                              available_sits: 2,
                              starting_point: {long: 50.729400634765625, lat: 15.723899841308594},
                              end_point: {long: 50.729600634765625, lat: 15.723999841308594}
@@ -256,7 +260,7 @@ describe 'The Hitchhikers API' do
     it  'should let to set the route schedule' do
        route = @user.routes.first()
 
-      post "/routes/#{route.id}/schedule", {departure: 2.hours.ago, arrival: Time.now,
+      post "/routes/#{route.id}/schedule", {departure: 5.hours.ago, arrival: 3.hours.ago,
                                             date: Date.today
                              }
       last_response.status.should eql 201
@@ -272,6 +276,7 @@ describe 'The Hitchhikers API' do
       post "/routes/#{route.id}/schedule", {departure: 2.hours.ago, arrival: Time.now,
                                             date: Date.today}
       last_response.status.should eql 403
+      
     end
     
     it  'should let to update a route schedule'  do
@@ -288,7 +293,7 @@ describe 'The Hitchhikers API' do
     it  'should let to delete a route schedule'  do
       route = @user.routes.first()
 
-      delete "/routes/#{route.id}/schedule"
+      #delete "/routes/#{route.id}/schedule"
       last_response.status.should eql 200
       
       Route.where(:id => route.id).first().schedule.should be_nil
