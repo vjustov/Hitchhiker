@@ -357,6 +357,7 @@ get '/vehicles' do
 end
 
 get '/vehicles/brands' do
+  content_type 'application/json'
   brands = Vehicle.distinct(:brand)
   brands.to_json
 end
@@ -369,7 +370,8 @@ end
 
 get '/vehicles/:brand/:model/years' do
   halt 400 if params[:brand].nil? && params[:model].nil?
-  years = Vehicle.where(:brand => params[:brand], :model=> params[:model]).distinct(:year)
+  years = Vehicle.where(:brand => params[:brand], :model=> params[:model]).only(:year,:_id)
+  years = years.map{|a| {year: a.year, id: a.id}}
   years.to_json
 end
 
