@@ -103,7 +103,6 @@ describe 'The Hitchhikers API' do
       json_response.size.should eql 5  
     end
 
-
     it "should login a user" do
       user = Hitchhiker.all.entries[1]
       get "/login", {username: user.username, password: user.password}
@@ -128,9 +127,9 @@ describe 'The Hitchhikers API' do
 
     it "should be able to edit users" do
       
-      old_user = Hitchhiker.all.entries[1]
+      old_user = Hitchhiker.all.entries[2]
       
-      put "/hitchhikers/#{old_user.username}", {lastname: 'Updated', hitchhiker: false}
+      put "/hitchhikers/#{old_user.username}", {lastname: 'Updated', hitchhiker: false, email: 'dariel.javier@gmail.com'}
       last_response.status.should eql 204
       Hitchhiker.by_username(old_user.username).first()['lastname'].should_not eql old_user['lastname']
     end
@@ -161,6 +160,8 @@ describe 'The Hitchhikers API' do
       vehicle3 = Vehicle.new(brand: 'Honda', model: 'CRV', year: year, sits: 4, has_trunk: false)
       vehicle3.save
     end
+    
+
 
     it 'should get all the vehicles' do
       get '/vehicles'
@@ -168,9 +169,17 @@ describe 'The Hitchhikers API' do
       vehicles = JSON.parse(last_response.body)
       vehicles.size.should eql 7
     end
+    
+    it 'should set vehicles for hitchhiker' do
+      get "/hitchhikers?email=dariel.javier@gmail.com"
+      last_response.should be_ok
+      hitchhiker = (JSON.parse(last_response.body)).first
+      put "/hitchhikers/#{hitchhiker['username']}/vehicles", {vehicles: [Vehicle.first.id, Vehicle.last.id]}
+      last_response.status.should eql(204)
+    end
 
     it 'should get a vehicle' do
-      get "/vehicles/#{Vehicle.first.id}"
+      get "/vehicles?id=#{Vehicle.first.id}"
       last_response.should be_ok
     end
 
@@ -225,7 +234,7 @@ describe 'The Hitchhikers API' do
       #Vehicle.destroy_all
       Schedule.destroy_all
       
-      @user = Hitchhiker.first()
+      @user = Hitchhiker.where(email: 'dariel.javier@gmail.com').first()
       @vehicle = Vehicle.new  brand: "Honda", model: "Civic", year:2008, sits:5, has_trunk: false 
       @vehicle.save 
       5.times do |u|

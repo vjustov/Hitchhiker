@@ -83,7 +83,12 @@ end
 
 get '/hitchhikers' do
   unless params[:username].nil?
-    user = Hitchhiker.by_username(params[:username]).first
+    user = Hitchhiker.by_username(params[:username])
+    halt 404, 'User not found' if user.nil?
+    halt 200, user.to_json
+  end
+  unless params[:email].nil?
+    user = Hitchhiker.by_email(params[:email])
     halt 404, 'User not found' if user.nil?
     halt 200, user.to_json
   end
@@ -119,14 +124,33 @@ put '/hitchhikers/:username' do
   halt 404 if user.nil?
   halt 400 if params.to_json.nil?
 
-  %w(name lastname email password image admin hitchhiker).each do |key|
+  %w(name lastname email password image admin hitchhiker vehicles).each do |key|
     unless params[key].nil? || params[key] == user[key]
       user[key] = params[key]
     end
   end
-
+  debugger
   halt 500 unless user.save
+  debugger
+  [204]
+end
 
+put '/hitchhikers/:username/vehicles' do
+  user = Hitchhiker.by_username(params[:username]).first()
+  halt 404 if user.nil?
+  halt 400 if params.to_json.nil?
+debugger
+  %w(vehicles).each do |key|
+    unless params[key].nil? || params[key] == user[key]
+      params[key].each do |v_id|
+        vehicle = Vehicle.find(v_id)
+        user.vehicles << vehicle unless vehicle.nil?
+      end
+    end
+  end
+  debugger
+  halt 500 unless user.save
+  debugger
   [204]
 end
 
@@ -359,7 +383,7 @@ end
 #LET'S GET SOME VEHICLES
 
 get '/vehicles' do
-  unless params[:id].nil?
+  unless params[:vehicle_id].nil?
     vehicle = Vehicle.find(params[:id])
     halt 200, vehicle.to_json
   end
@@ -367,9 +391,20 @@ get '/vehicles' do
 end
 
 get '/vehicles/brands' do
+  debugger
   brands = Vehicle.distinct(:brand)
   brands.to_json
 end
+
+get '/vehicles/:id' do 
+   unless params[:id].nil?
+    vehicle = Vehicle.find(params[:id])
+    halt 200, vehicle.to_json
+  end
+end
+
+
+
 
 get '/vehicles/:brand/models' do
   halt 400 if params[:brand].nil?

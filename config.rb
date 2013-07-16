@@ -38,7 +38,7 @@ class Hitchhicker_config < Sinatra::Base
 
   configure :production do
     
-    oauth.database = Mongo::Connection.new["API_PROD"]
+  oauth.database = Mongo::Connection.new["API_TEST"]
     oauth.param_authentication = true
     
     #oauth.authenticator = lambda do |id, client_secret|
@@ -47,8 +47,8 @@ class Hitchhicker_config < Sinatra::Base
     #end
     
     Bundler.setup(:default, :assets, :test)
-    set :environment, :production
+    set :environment, :test
     enable :sessions, :logging, :static, :inline_templates, :method_override, :dump_errors, :run
-    Mongoid.load!(File.join(File.dirname(__FILE__),'mongoid.yaml'), :production)
+    Mongoid.load!(File.join(File.dirname(__FILE__),'mongoid.yaml'), :test)
   end
 end

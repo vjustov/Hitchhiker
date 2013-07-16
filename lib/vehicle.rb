@@ -9,5 +9,5 @@ class Vehicle
   
   
   has_many :routes
-  has_many :hitchhikers
+  has_many :hitchhikers, inverse_of: :hitchhikers
 end

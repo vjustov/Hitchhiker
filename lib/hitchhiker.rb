@@ -23,11 +23,13 @@ class Hitchhiker
   scope :hitchhikers, where(hitchhiker: true)
   scope :drivers, where(hitchhicker: false)
   scope :by_username, ->(username) { where(:username => username)}
+  scope :by_email, ->(email) { where(:email => email)}
   scope :near, ->(long,lat) { where(:position=> { '$near' => [ params[:long], params[:lat] ], '$maxdistance' => 5 })}
   
 
   #has_and_belongs_to_many :vehicles, inverse_of: nil 
-  has_many :vehicles 
+  has_and_belongs_to_many :vehicles, inverse_of: :vehicles
+
   has_many :routes
 
 def admin?
