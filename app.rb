@@ -208,7 +208,18 @@ get '/routes/:id' do
 end
 
 post '/routes' do
- 
+   halt 400 if request.params.nil?
+  user = Hitchhiker.find(params[:hitchhiker_id])
+  halt 404 if user.nil?
+  
+  debugger
+  
+  route = Route.new JSON.parse(request.params.to_json)
+  user.routes << route
+  
+  halt 500 unless user.save
+
+  [201, user.to_json]
 end
 
 
