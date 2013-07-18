@@ -38,7 +38,6 @@ class Schedule
   field :frecuency, type:Integer
 
   validates_presence_of :departure
-  validates_presence_of :date
   
   embedded_in :route
 end
