@@ -121,7 +121,8 @@ end
 
 get '/hitchhikers/:id' do
   unless params[:id].nil?
-    user = Hitchhiker.find(params[:id])
+
+    user = Hitchhiker.find_by(_id: params[:id])
     halt 404, 'User not found' if user.nil?
     halt 200, user.to_json
   else 
