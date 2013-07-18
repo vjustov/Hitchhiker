@@ -11,7 +11,7 @@ class Hitchhicker_config < Sinatra::Base
   register Rack::OAuth2::Sinatra
 
   configure :development do
-    oauth.database = Mongo::Connection.new["API_TEST"]
+    oauth.database = Mongo::MongoClient.new["API_TEST"]
      oauth.param_authentication = true
     
     Bundler.setup(:default, :assets, :development)
@@ -22,7 +22,7 @@ class Hitchhicker_config < Sinatra::Base
       
   configure :test do
     
-    oauth.database = Mongo::Connection.new["API_TEST"]
+    oauth.database = Mongo::MongoClient.new["API_TEST"]
     oauth.param_authentication = true
     
     #oauth.authenticator = lambda do |id, client_secret|
@@ -38,8 +38,8 @@ class Hitchhicker_config < Sinatra::Base
 
   configure :production do
     
-  oauth.database = Mongo::Connection.new["API_PROD"]
-    oauth.param_authentication = true
+    # oauth.database = Mongo::MongoClient.new[ENV['MONGOHQ_URL']]
+    # oauth.param_authentication = true
     
     #oauth.authenticator = lambda do |id, client_secret|
     #  user = Rack::OAuth2::Server::Client.find(id)
@@ -50,5 +50,9 @@ class Hitchhicker_config < Sinatra::Base
     set :environment, :production
     enable :sessions, :logging, :static, :inline_templates, :method_override, :dump_errors, :run
     Mongoid.load!(File.join(File.dirname(__FILE__),'mongoid.yaml'), :production)
+
+    oauth.database = Mongo::MongoClient.new[ENV['MONGOHQ_URL']]
+    oauth.param_authentication = true
+    
   end
 end
