@@ -241,8 +241,8 @@ describe 'The Hitchhikers API' do
         json = {}
         json['country'] = "Country#{u}"
         json['city'] = "City#{u}"
-        json['from'] = "micasa#{u}"
-        json['to'] = "tucasa#{u}"
+        json['from'] = "Santo Domingo"
+        json['to'] = "Port Au Prince"
         json['route_link'] = "http://#{u}.com"
         json['vehicle'] = @vehicle
         json['passengers'] = []
