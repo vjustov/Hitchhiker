@@ -208,18 +208,32 @@ get '/routes/:id' do
 end
 
 post '/routes' do
-   halt 400 if request.params.nil?
-  user = Hitchhiker.find(params[:hitchhiker_id])
+  debugger
+  halt 400 if request.params.nil?   
+  if !params['route'].nil?
+    route = Route.new
+    schedule = Schedule.new
+    
+    %w(from to route_points hitchhiker_id vehicle_id route_link avaliable_sits).each do |key|
+      unless params['route'][key].nil?
+        route[key] = params['route'][key]
+      end
+    end
+    user = Hitchhiker.find(route.hitchhiker_id)    
+  else
+    route = Route.new JSON.parse(request.body.to_json) 
+    user = Hitchhiker.find(params[:hitchhiker_id])
+  end
+  
+  
+  
   halt 404 if user.nil?
   
-  debugger
-  
-  route = Route.new JSON.parse(request.params.to_json)
   user.routes << route
   
   halt 500 unless user.save
 
-  [201, user.to_json]
+  [201, route.to_json]
 end
 
 
@@ -251,46 +265,57 @@ end
 
 post '/routes/:id/schedule' do
   halt 400 if request.params.nil?
+  debugger
+  
   route = Route.where('_id' => params[:id]).first
   halt 404 if route.nil?
-   
+  if !params['schedule'].nil?
+    route_schedule = Schedule.new
+    
+    %w(departure arrival date).each do |key|
+      unless params['schedule'][key].nil?
+        route_schedule[key] = params['schedule'][key]
+      end
+    end
+  else
   route_schedule = Schedule.new JSON.parse(request.params.to_json)
-    
-  user_routes = route.hitchhiker.routes
-  user_routes.each do |user_route|
-    unless (user_route.schedule.nil?) then 
-      schedule = Route.where(
-                            { "$or" =>
-                                [ 
-                                   { "$and" => 
-                                      [
-
-                                        { "schedule.arrival" =>  {"$lte" =>  route_schedule.arrival } }
-                                        #{ "schedule.arrival_minute" =>  {"$lte" =>  route_schedule.arrival_minute } }
-
-                                      ]
-                                   },
-                                   {
-                                      "$and" => 
-                                      [
-
-                                        { "schedule.departure" =>  {"$gte" =>  route_schedule.departure } }
-                                        #{ "schedule.departure_minute" =>  {"$gte" =>  route_schedule.departure_minute } }
-                                      ]
-                                   }
-                                ],
-                             "hitchhiker_id" => user_route.hitchhiker_id }
-                  ) 
-                  
-      
-      halt 403 if !schedule.nil? || schedule.size > 0
-    end  
   end
-    
+  #user_routes = route.hitchhiker.routes
+  #debugger
+  #user_routes.each do |user_route|
+  #  unless (user_route.schedule.nil?) then 
+  #    schedule = Route.where(
+  #                          { "$or" =>
+  #                              [ 
+  #                                 { "$and" => 
+  #                                    [
+  #
+  #                                      { "schedule.arrival" =>  {"$lte" =>  route_schedule.arrival } }
+  #                                      #{ "schedule.arrival_minute" =>  {"$lte" =>  route_schedule.arrival_minute } }
+#
+#                                      ]
+#                                   },
+#                                   {
+#                                      "$and" => 
+#                                      [
+#
+#                                        { "schedule.departure" =>  {"$gte" =>  route_schedule.departure } }
+#                                        #{ "schedule.departure_minute" =>  {"$gte" =>  route_schedule.departure_minute } }
+#                                      ]
+#                                   }
+#                                ],
+#                             "hitchhiker_id" => user_route.hitchhiker_id }
+#                  ) 
+                  
+#      debugger
+#      halt 403 if !schedule.nil? || schedule.size > 0
+#    end  
+ # end
+  debugger
   route.schedule = route_schedule
     
   halt 500 unless route.save
-
+  debugger
   [201, route.to_json]
 end
 
