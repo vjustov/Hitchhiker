@@ -19,13 +19,12 @@ class Hitchhiker
 
   index ({position:"2d"})
 
-  
+  scope :by_id, ->(id) { where(_id: id) }
   scope :hitchhikers, where(hitchhiker: true)
   scope :drivers, where(hitchhicker: false)
   scope :by_username, ->(username) { where(:username => username)}
   scope :by_email, ->(email) { where(:email => email)}
-  scope :near, ->(long,lat) { where(:position=> { '$near' => [ params[:long], params[:lat] ], '$maxdistance' => 5 })}
-  
+  scope :near, ->(long,lat) { where(:position=> { '$near' => [ params[:long], params[:lat] ], '$maxdistance' => 5 })} 
 
   #has_and_belongs_to_many :vehicles, inverse_of: nil 
   has_and_belongs_to_many :vehicles, inverse_of: :vehicles
