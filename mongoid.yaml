@@ -15,7 +15,5 @@ test:
 production:
   sessions:
     default:
-      database: hitchhiker_test
-      hosts:
-        - localhost:27017
-      #uri: <%= ENV['MONGOHQ_URL'] %>
+      database: hitchhikersdr
+      uri: <%= ENV['MONGOHQ_URL'] %>
