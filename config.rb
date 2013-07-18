@@ -1,8 +1,8 @@
 require 'bundler'
 require 'sinatra'
 require 'mongoid'
-require 'sinatra/reloader' if :development
-require 'debugger' if :development
+require 'sinatra/reloader' if ENV['RACK_ENV'] == 'development'
+require 'debugger' if ENV['RACK_ENV'] == 'development'
 require "rack/oauth2/sinatra"
 require "rack/oauth2/server/admin"
 
