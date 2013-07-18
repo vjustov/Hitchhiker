@@ -1,6 +1,6 @@
 
-require 'config'
-require 'app'
+require './config'
+require './app'
 use Rack::MethodOverride
 
 app = Rack::Builder.new do
