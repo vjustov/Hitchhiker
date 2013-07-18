@@ -49,6 +49,6 @@ class Hitchhicker_config < Sinatra::Base
     Bundler.setup(:default, :assets, :production)
     set :environment, :production
     enable :sessions, :logging, :static, :inline_templates, :method_override, :dump_errors, :run
-    Mongoid.load!(File.join(File.dirname(__FILE__),'mongoid.yaml'), :test)
+    Mongoid.load!(File.join(File.dirname(__FILE__),'mongoid.yaml'), :production)
   end
 end
