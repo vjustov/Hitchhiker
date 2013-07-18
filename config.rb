@@ -51,7 +51,7 @@ class Hitchhicker_config < Sinatra::Base
     enable :sessions, :logging, :static, :inline_templates, :method_override, :dump_errors, :run
     Mongoid.load!(File.join(File.dirname(__FILE__),'mongoid.yaml'), :production)
 
-    oauth.database = Mongo::MongoClient.new[ENV['MONGOHQ_URL']]
+    #oauth.database = Mongo::MongoClient.new[ENV['MONGOHQ_URL']]
     oauth.param_authentication = true
     
   end
