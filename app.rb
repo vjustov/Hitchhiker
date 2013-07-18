@@ -140,9 +140,9 @@ put '/hitchhikers/:username' do
       user[key] = params[key]
     end
   end
-  debugger
+  #debugger
   halt 500 unless user.save
-  debugger
+  #debugger
   [204]
 end
 
@@ -150,7 +150,6 @@ put '/hitchhikers/:username/vehicles' do
   user = Hitchhiker.by_username(params[:username]).first()
   halt 404 if user.nil?
   halt 400 if params.to_json.nil?
-debugger
   %w(vehicles).each do |key|
     unless params[key].nil? || params[key] == user[key]
       params[key].each do |v_id|
@@ -159,9 +158,8 @@ debugger
       end
     end
   end
-  debugger
+  #debugger
   halt 500 unless user.save
-  debugger
   [204]
 end
 
@@ -206,6 +204,10 @@ get '/routes' do
   Route.active_routes.to_json
 end
 
+get '/routes/schedule' do
+  (Schedule.new).to_json
+end
+
 get'/routes/new' do
   Route.new
 end
@@ -219,13 +221,13 @@ get '/routes/:id' do
 end
 
 post '/routes' do
-  debugger
+  #debugger
   halt 400 if request.params.nil?   
   if !params['route'].nil?
     route = Route.new
     schedule = Schedule.new
     
-    %w(from to route_points hitchhiker_id vehicle_id route_link avaliable_sits).each do |key|
+    %w(from to route_points hitchhiker_id vehicle_id route_link available_sits).each do |key|
       unless params['route'][key].nil?
         route[key] = params['route'][key]
       end
@@ -274,9 +276,11 @@ delete '/routes/:id' do
 end
 
 
+
+
 post '/routes/:id/schedule' do
   halt 400 if request.params.nil?
-  debugger
+  #debugger
   
   route = Route.where('_id' => params[:id]).first
   halt 404 if route.nil?
@@ -322,11 +326,11 @@ post '/routes/:id/schedule' do
 #      halt 403 if !schedule.nil? || schedule.size > 0
 #    end  
  # end
-  debugger
+  #debugger
   route.schedule = route_schedule
     
   halt 500 unless route.save
-  debugger
+  #debugger
   [201, route.to_json]
 end
 
