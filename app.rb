@@ -119,6 +119,17 @@ get '/hitchhikers/hitchhikers' do
   Hitchhiker.hitchhikers.to_json
 end
 
+get '/hitchhikers/:id' do
+  unless params[:id].nil?
+    user = Hitchhiker.by_id(params[:id])
+    halt 404, 'User not found' if user.nil?
+    halt 200, user.to_json
+  else 
+    halt 400
+  end
+# Hitchhiker.all.to_json
+end
+
 put '/hitchhikers/:username' do
   user = Hitchhiker.by_username(params[:username]).first()
   halt 404 if user.nil?
