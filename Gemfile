@@ -3,7 +3,7 @@ gem 'sinatra'
 gem 'mongoid'
 gem "rack-oauth2-server", "~> 2.8.0"
 gem 'omniauth-facebook'
-
+gem 'sinatra-contrib'
 group :development do
   gem 'sinatra-contrib'
   gem 'debugger'
