@@ -15,5 +15,4 @@ test:
 production:
   sessions:
     default:
-      database: hitchhikersdr
       uri: <%= ENV['MONGOHQ_URL'] %>
