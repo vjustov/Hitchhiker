@@ -25,32 +25,32 @@ before do
   @current_user = Rack::OAuth2::Server::Client.find(oauth.identity) if oauth.authenticated?
 end
 
-get '/' do
-  redirect '/auth/facebook'
-end
+# get '/' do
+#   redirect '/auth/facebook'
+# end
 
-get '/auth/:provider/callback' do#, to: 'sessions#create'
+# get '/auth/:provider/callback' do#, to: 'sessions#create'
   
-  omniauth = JSON.parse request.env['omniauth.auth'].to_json
-  #debugger
-  token = omniauth['credentials']['token']
-  friends_url = "https://graph.facebook.com/fql?q=SELECT+uid,name,first_name,last_name,username,locale+FROM+user+WHERE+uid+IN+(SELECT+uid2+FROM+friend+WHERE+uid1+=+me())&access_token=#{token}"
+#   omniauth = JSON.parse request.env['omniauth.auth'].to_json
+#   #debugger
+#   token = omniauth['credentials']['token']
+#   friends_url = "https://graph.facebook.com/fql?q=SELECT+uid,name,first_name,last_name,username,locale+FROM+user+WHERE+uid+IN+(SELECT+uid2+FROM+friend+WHERE+uid1+=+me())&access_token=#{token}"
 
-  response_data = JSON.parse RestClient.get friends_url 
-  response_data['data'].each do |user_info|
-    #do something with the friend data
+#   response_data = JSON.parse RestClient.get friends_url 
+#   response_data['data'].each do |user_info|
+#     #do something with the friend data
 
-    # friend_id = user_id['uid2']
-    # friend_info = JSON.parse RestClient.get "http://graph.facebook.com/#{friend_id}/"
-    # puts friend_info['name']
-  end
-  #debugger
-  response_data['data'].to_json
-end
+#     # friend_id = user_id['uid2']
+#     # friend_info = JSON.parse RestClient.get "http://graph.facebook.com/#{friend_id}/"
+#     # puts friend_info['name']
+#   end
+#   #debugger
+#   response_data['data'].to_json
+# end
 
-get '/auth/failure' do
-  params[:message].to_json
-end
+# get '/auth/failure' do
+#   params[:message].to_json
+# end
 
 get "/oauth/authorize" do
   if @current_user
@@ -77,11 +77,11 @@ end
 oauth_required '/'
 
 
-get '/' do
-  'hello world'
-end
+# get '/' do
+#   'hello world'
+# end
 
-get '/hitchhikers' do
+get '/hitchhikers' do #WE NEED TO REFACTOR THIS!
   unless params[:username].nil?
     user = Hitchhiker.by_username(params[:username])
     halt 404, 'User not found' if user.nil?
@@ -96,10 +96,10 @@ get '/hitchhikers' do
 
 end
 
-get '/login' do
-  halt 400 unless user = Hitchhiker.by_username(params[:username]).first()
-  halt 200 if user.password == params[:password]
-end
+# get '/login' do
+#   halt 400 unless user = Hitchhiker.by_username(params[:username]).first()
+#   halt 200 if user.password == params[:password]
+# end
 
 
 post '/hitchhikers' do
@@ -132,10 +132,11 @@ get '/hitchhikers/:id' do
 end
 
 put '/hitchhikers/:username' do
-  user = Hitchhiker.by_username(params[:username]).first()
-  halt 404 if user.nil?
   halt 400 if params.to_json.nil?
 
+  user = Hitchhiker.by_username(params[:username]).first()
+  halt 404 if user.nil?
+  
   %w(name lastname email password image admin hitchhiker vehicles).each do |key|
     unless params[key].nil? || params[key] == user[key]
       user[key] = params[key]
@@ -308,25 +309,25 @@ post '/routes/:id/schedule' do
   #
   #                                      { "schedule.arrival" =>  {"$lte" =>  route_schedule.arrival } }
   #                                      #{ "schedule.arrival_minute" =>  {"$lte" =>  route_schedule.arrival_minute } }
-#
-#                                      ]
-#                                   },
-#                                   {
-#                                      "$and" => 
-#                                      [
-#
-#                                        { "schedule.departure" =>  {"$gte" =>  route_schedule.departure } }
-#                                        #{ "schedule.departure_minute" =>  {"$gte" =>  route_schedule.departure_minute } }
-#                                      ]
-#                                   }
-#                                ],
-#                             "hitchhiker_id" => user_route.hitchhiker_id }
-#                  ) 
-                  
-#      debugger
-#      halt 403 if !schedule.nil? || schedule.size > 0
-#    end  
- # end
+  #
+  #                                      ]
+  #                                   },
+  #                                   {
+  #                                      "$and" => 
+  #                                      [
+  #
+  #                                        { "schedule.departure" =>  {"$gte" =>  route_schedule.departure } }
+  #                                        #{ "schedule.departure_minute" =>  {"$gte" =>  route_schedule.departure_minute } }
+  #                                      ]
+  #                                   }
+  #                                ],
+  #                             "hitchhiker_id" => user_route.hitchhiker_id }
+  #                  ) 
+                    
+  #      debugger
+  #      halt 403 if !schedule.nil? || schedule.size > 0
+  #    end  
+  # end
   #debugger
   route.schedule = route_schedule
     
