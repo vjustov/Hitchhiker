@@ -5,7 +5,15 @@ require 'sinatra/reloader' if :development
 require 'debugger' if :development
 require "rack/oauth2/sinatra"
 require "rack/oauth2/server/admin"
+require 'rest_client'
+require 'erb'
+require 'omniauth-facebook'
+require 'json'
 
+
+['vehicle','hitchhiker', 'route'].each do |file|
+  require File.join(File.dirname(__FILE__), 'lib', "#{file}.rb")
+end
 
 class Hitchhicker_config < Sinatra::Base
   register Rack::OAuth2::Sinatra

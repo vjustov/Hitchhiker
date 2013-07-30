@@ -1,18 +1,6 @@
-require 'sinatra'
-require 'mongoid'
-require 'sinatra/reloader' if :development
-require 'debugger' if :development
-require 'rest_client'
-require "rack/oauth2/sinatra"
-require "rack/oauth2/server/admin"
-require 'erb'
-require 'omniauth-facebook'
+require './config.rb'
 
 register Rack::OAuth2::Sinatra
-
-['vehicle','hitchhiker', 'route'].each do |file|
-  require File.join(File.dirname(__FILE__), 'lib', "#{file}.rb")
-end
 
 use OmniAuth::Builder do
   provider :facebook, '204327486390146','8c374e0a7d5fcf83632dd7881c0e90df',  {:client_options => {:ssl => {:verify => false}}} 
