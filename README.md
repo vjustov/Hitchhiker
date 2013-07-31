@@ -7,7 +7,11 @@ Hitchhiker's code to the galaxy
 
 Installation
 ==========
-We are not ready yet. but we will definitively let you know when we are.
+After the tipical  `bundle`.
+Run `ruby db/seed.rb` to populate vehicles data and some other examples.
+After that `rackup` your pains away.
+
+We are not ready yet. but weare getting close.
 
 Contributor List
 ==========
