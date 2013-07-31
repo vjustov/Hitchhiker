@@ -11,9 +11,7 @@ class Hitchhiker
   field :password, type: String
   field :image, type: String
   field :admin, type: Boolean
-  #field :fb_access, type:String
-  
-    
+      
   field :hitchhiker, type: Boolean
   field :position, type: Hash
 
@@ -26,7 +24,6 @@ class Hitchhiker
   scope :by_email, ->(email) { where(:email => email)}
   scope :near, ->(long,lat) { where(:position=> { '$near' => [ params[:long], params[:lat] ], '$maxdistance' => 5 })} 
 
-  #has_and_belongs_to_many :vehicles, inverse_of: nil 
   has_and_belongs_to_many :vehicles, inverse_of: :vehicles
 
   has_many :routes

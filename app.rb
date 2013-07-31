@@ -1,18 +1,6 @@
-require 'sinatra'
-require 'mongoid'
-require 'sinatra/reloader' if ENV['RACK_ENV'] == 'development'
-require 'debugger' if ENV['RACK_ENV'] == 'development'
-require 'rest_client'
-require "rack/oauth2/sinatra"
-require "rack/oauth2/server/admin"
-require 'erb'
-require 'omniauth-facebook'
+require './config.rb'
 
 register Rack::OAuth2::Sinatra
-
-['vehicle','hitchhiker', 'route'].each do |file|
-  require File.join(File.dirname(__FILE__), 'lib', "#{file}.rb")
-end
 
 use OmniAuth::Builder do
   provider :facebook, '204327486390146','8c374e0a7d5fcf83632dd7881c0e90df',  {:client_options => {:ssl => {:verify => false}}} 
@@ -24,33 +12,6 @@ before do
   content_type 'application/json'
   @current_user = Rack::OAuth2::Server::Client.find(oauth.identity) if oauth.authenticated?
 end
-
-# get '/' do
-#   redirect '/auth/facebook'
-# end
-
-# get '/auth/:provider/callback' do#, to: 'sessions#create'
-  
-#   omniauth = JSON.parse request.env['omniauth.auth'].to_json
-#   #debugger
-#   token = omniauth['credentials']['token']
-#   friends_url = "https://graph.facebook.com/fql?q=SELECT+uid,name,first_name,last_name,username,locale+FROM+user+WHERE+uid+IN+(SELECT+uid2+FROM+friend+WHERE+uid1+=+me())&access_token=#{token}"
-
-#   response_data = JSON.parse RestClient.get friends_url 
-#   response_data['data'].each do |user_info|
-#     #do something with the friend data
-
-#     # friend_id = user_id['uid2']
-#     # friend_info = JSON.parse RestClient.get "http://graph.facebook.com/#{friend_id}/"
-#     # puts friend_info['name']
-#   end
-#   #debugger
-#   response_data['data'].to_json
-# end
-
-# get '/auth/failure' do
-#   params[:message].to_json
-# end
 
 get "/oauth/authorize" do
   if @current_user
@@ -73,13 +34,7 @@ post "/oauth/deny" do
   oauth.deny!
 end
 
-
 oauth_required '/'
-
-
-# get '/' do
-#   'hello world'
-# end
 
 get '/hitchhikers' do #WE NEED TO REFACTOR THIS!
   unless params[:username].nil?
@@ -93,14 +48,7 @@ get '/hitchhikers' do #WE NEED TO REFACTOR THIS!
     halt 200, user.to_json
   end
   Hitchhiker.all.to_json
-
 end
-
-# get '/login' do
-#   halt 400 unless user = Hitchhiker.by_username(params[:username]).first()
-#   halt 200 if user.password == params[:password]
-# end
-
 
 post '/hitchhikers' do
   halt 400 if request.params.nil?
@@ -142,9 +90,9 @@ put '/hitchhikers/:username' do
       user[key] = params[key]
     end
   end
-  #debugger
+
   halt 500 unless user.save
-  #debugger
+
   [204]
 end
 
@@ -160,7 +108,7 @@ put '/hitchhikers/:username/vehicles' do
       end
     end
   end
-  #debugger
+
   halt 500 unless user.save
   [204]
 end
@@ -173,7 +121,7 @@ delete '/hitchhikers/:username' do
 end
 
 get '/hitchhikers/long=:long&lat=:lat' do
-  # debugger
+
   users = Hitchhiker.near(params[:long], params[:lat])
   users.to_json
 end
@@ -182,8 +130,6 @@ get '/hitchhikers/:username/routes' do
   halt 400 if params[:username].nil?
   user = Hitchhiker.by_username(params[:username]).first().routes.to_json
 end
-
-
 
 post '/hitchhikers/:username/routes' do
   halt 400 if request.params.nil?
@@ -200,8 +146,6 @@ post '/hitchhikers/:username/routes' do
   [201, user.to_json]
 end
 
-
-
 get '/routes' do
   Route.active_routes.to_json
 end
@@ -213,7 +157,6 @@ end
 get'/routes/new' do
   Route.new
 end
-
 
 get '/routes/:id' do
   halt 400 if request.params.nil?
@@ -240,8 +183,6 @@ post '/routes' do
     user = Hitchhiker.find(params[:hitchhiker_id])
   end
   
-  
-  
   halt 404 if user.nil?
   
   user.routes << route
@@ -250,7 +191,6 @@ post '/routes' do
 
   [201, route.to_json]
 end
-
 
 put '/routes/:id' do
   route = Route.find_by(_id: params[:id])
@@ -277,9 +217,6 @@ delete '/routes/:id' do
   halt 500 unless route.destroy
 end
 
-
-
-
 post '/routes/:id/schedule' do
   halt 400 if request.params.nil?
   #debugger
@@ -297,42 +234,11 @@ post '/routes/:id/schedule' do
   else
   route_schedule = Schedule.new JSON.parse(request.params.to_json)
   end
-  #user_routes = route.hitchhiker.routes
-  #debugger
-  #user_routes.each do |user_route|
-  #  unless (user_route.schedule.nil?) then 
-  #    schedule = Route.where(
-  #                          { "$or" =>
-  #                              [ 
-  #                                 { "$and" => 
-  #                                    [
-  #
-  #                                      { "schedule.arrival" =>  {"$lte" =>  route_schedule.arrival } }
-  #                                      #{ "schedule.arrival_minute" =>  {"$lte" =>  route_schedule.arrival_minute } }
-  #
-  #                                      ]
-  #                                   },
-  #                                   {
-  #                                      "$and" => 
-  #                                      [
-  #
-  #                                        { "schedule.departure" =>  {"$gte" =>  route_schedule.departure } }
-  #                                        #{ "schedule.departure_minute" =>  {"$gte" =>  route_schedule.departure_minute } }
-  #                                      ]
-  #                                   }
-  #                                ],
-  #                             "hitchhiker_id" => user_route.hitchhiker_id }
-  #                  ) 
-                    
-  #      debugger
-  #      halt 403 if !schedule.nil? || schedule.size > 0
-  #    end  
-  # end
-  #debugger
+ 
   route.schedule = route_schedule
     
   halt 500 unless route.save
-  #debugger
+ 
   [201, route.to_json]
 end
 
@@ -414,7 +320,6 @@ put '/routes/:id/stops/:id_stop' do
   [204]
 end
 
-
 delete '/routes/:id/stops/:id_stop' do
   route = Route.find_by(_id: params[:id])
   stop = route.stops.find_by(_id: params[:id_stop])
@@ -427,11 +332,9 @@ delete '/routes/:id/stops/:id_stop' do
 end
 
 get '/hitchhikers/lat=:lat&long=:long' do
-  #debugger
   users = Hitchhiker.where position: { '$near' => [ params[:long], params[:lat] ], '$maxdistance' => 5 }
   users.to_json
 end
-
 
 #LET'S GET SOME VEHICLES
 
@@ -454,9 +357,6 @@ get '/vehicles/:id' do
     halt 200, vehicle.to_json
   end
 end
-
-
-
 
 get '/vehicles/:brand/models' do
   halt 400 if params[:brand].nil?
